@@ -48,6 +48,9 @@ def download_content(query, file_type = 'pdf', directory = None, limit = 10):
 	if not directory:
 		directory = query.replace(' ', '-')
 
+	print("Downloading {0} {1} files on topic {2} and saving to directory: {3}".
+		  format(limit, file_type, query, directory))
+
 	links = search(query, file_type, limit)
 	download_all(links, directory)
 
