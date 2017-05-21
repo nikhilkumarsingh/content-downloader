@@ -3,7 +3,7 @@
 
 # content-downloader
 
-Python package to download files on any topic in bulk.
+Python package with **command line utility** to download files on any topic in bulk.
 
 content-downloader supports Python 2 as well as Python 3.
 
