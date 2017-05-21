@@ -77,7 +77,7 @@ Usage in Python files
 
     ctdl.download_content(query, filetype, directory, limit)
 
-.. |PyPI| image:: https://img.shields.io/badge/PyPi-v1.0-f39f37.svg
+.. |PyPI| image:: https://img.shields.io/badge/PyPi-v1.1-f39f37.svg
    :target: https://pypi.python.org/pypi/ctdl
 .. |license| image:: https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000
    :target: https://github.com/nikhilkumarsingh/content-downloader/blob/master/LICENSE.txt
