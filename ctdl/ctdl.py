@@ -1,7 +1,7 @@
 import argparse
 import requests
 from bs4 import BeautifulSoup
-from .downloader import download_all
+from .downloader import download_series, download_parallel
 from .utils import FILE_EXTENSIONS
 
 search_url = "https://www.google.com/search"
@@ -44,7 +44,7 @@ def search(query, file_type = 'pdf', limit = 10):
 	return links[:limit]
 
 
-def download_content(query, file_type = 'pdf', directory = None, limit = 10):
+def download_content(query, file_type = 'pdf', directory = None, limit = 10, parallel = False):
 	if not directory:
 		directory = query.replace(' ', '-')
 
@@ -52,7 +52,11 @@ def download_content(query, file_type = 'pdf', directory = None, limit = 10):
 		  format(limit, file_type, query, directory))
 
 	links = search(query, file_type, limit)
-	download_all(links, directory)
+
+	if parallel:
+		download_parallel(links, directory)
+	else:
+		download_series(links, directory)
 
 
 def show_filetypes():
@@ -77,6 +81,9 @@ def main():
     parser.add_argument("-d", "--directory", type = str, default = None,
                         help = "Specify directory where files will be stored.")
 
+    parser.add_argument("-p", "--parallel", action = 'store_true',
+                        help = "For parallel downloading.")
+
     parser.add_argument("-a", "--available", action='store_true',
     					help = "Get list of all available filetypes.")
  
@@ -85,7 +92,7 @@ def main():
     if args.available:
     	show_filetypes()
     else:
-    	download_content(args.query, args.file_type, args.directory, args.limit)
+    	download_content(args.query, args.file_type, args.directory, args.limit, args.parallel)
 
 
 if __name__ == "__main__":
