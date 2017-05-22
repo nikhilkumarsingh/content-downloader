@@ -3,9 +3,12 @@
 content-downloader
 ==================
 
-Python package to download files on any topic in bulk.
+Python package with **command line utility** to download files on any
+topic in bulk.
 
 content-downloader supports Python 2 as well as Python 3.
+
+**Feature update:** Download files parallely. |image2|
 
 Installation
 ------------
@@ -21,7 +24,7 @@ Command line usage
 
 ::
 
-    $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-a] [query]
+    $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-a] [-p] [query]
 
 Optional arguments are:
 
@@ -44,6 +47,8 @@ Optional arguments are:
 
                 Default: A directory with same name as the search query in the current directory.
 
+-  -p : for parallel downloading.
+
 Here are some examples:
 
 -  To get list of available filetypes:
@@ -63,6 +68,8 @@ pdf files in a folder named 'python' in current directory.
 
 ``$ ctdl -d /home/nikhil/Desktop/ml-pdfs machine learning``
 
+-  To download files parallely: ``$ ctdl -f pdf -p python``
+
 Usage in Python files
 ---------------------
 
@@ -80,7 +87,9 @@ Usage in Python files
 .. figure:: https://github.com/nikhilkumarsingh/content-downloader/blob/master/example.png
    :alt: 
 
-.. |PyPI| image:: https://img.shields.io/badge/PyPi-v1.2-f39f37.svg
+.. |PyPI| image:: https://img.shields.io/badge/PyPi-v1.3-f39f37.svg
    :target: https://pypi.python.org/pypi/ctdl
 .. |license| image:: https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000
    :target: https://github.com/nikhilkumarsingh/content-downloader/blob/master/LICENSE.txt
+.. |image2| image:: https://media.giphy.com/media/3oKIPlt7APHqWuVl3q/giphy.gif
+
