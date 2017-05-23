@@ -7,7 +7,7 @@ Python package with **command line utility** to download files on any topic in b
 
 ![](https://media.giphy.com/media/3oKIPlt7APHqWuVl3q/giphy.gif)
 
-**Features:**
+## Features
 
 - ctdl fetches file links related to a search query from **Google Search**.
 
@@ -51,7 +51,8 @@ Optional arguments are:
 
 - -p : for parallel downloading.
 
-Here are some examples:
+
+## Examples
 
 - To get list of available filetypes:
 
@@ -116,6 +117,19 @@ ctdl.download_content(query, filetype, directory, limit)
 
   ```
   $ git clone http://github.com/nikhilkumarsingh/content-downloader
+  ```
+
+- Install dependencies
+  ```
+  $ pip install -r requirements.txt
+  ```
+
+  **Note:** There seem to be some issues with current version of tqdm. If you do not get 
+  expected progress bar behaviour, try this patch:
+
+  ```
+  $ pip uninstall tqdm
+  $ pip install git+https://github.com/nikhilkumarsingh/tqdm
   ```
 
 - In ctdl/ctdl.py, remove the `.` prefix from `.downloader` and `.utils` for 
