@@ -1,3 +1,4 @@
+import os
 import threading
 import requests
 from tqdm import tqdm, trange
@@ -63,7 +64,6 @@ def download_parallel(urls, directory):
         t.join()
 
     print("\nDownload complete.")
-
 
 
 def download_series(urls, directory):

@@ -14,10 +14,26 @@ content-downloader supports Python 2 as well as Python 3.
 
 To install content-downloader, simply,
 ```
-$ pip install ctdl
+$ pip install -r requirements.txt
 ```
 
 ## Command line usage
+
+* **IMPORTANT NOTE**: If the command `ctdl` does not accept arguments and results in error
+then the library `ctdl` may not have been updated to incorporate my changes. In this case do the following:
+    * In ctdl/ctdl.py, remove the `.` prefix from `.downloader` and `.utils` for the following imports, so it changes:
+        * FROM
+            ```
+            from .downloader import download_series, download_parallel
+            from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+            ```
+        * TO
+            ```
+            from downloader import download_series, download_parallel
+            from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+            ```
+
+    * Run the python file directly `python ctdl/ctdl.py ___` (instead of with `ctdl ___`)
 
 ```
 $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-a] [-p] [query]
@@ -46,6 +62,12 @@ Here are some examples:
   $ ctdl -a
   ```
 
+- To get list of potential high threat filetypes:
+
+  ```
+  $ ctdl -t
+  ```
+
 - To download pdf files on topic 'python':
 
   ```
@@ -59,7 +81,7 @@ Here are some examples:
   $ ctdl -f ppt -l 3 health
   ```
 
-- To expicitly specify download folder:
+- To explicitly specify download folder:
 
   ```
   $ ctdl -d /home/nikhil/Desktop/ml-pdfs machine learning
