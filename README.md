@@ -18,13 +18,13 @@ Python package with **command line utility** to download files on any topic in b
 ## Installation
 
 - To install content-downloader, simply,
-  
+
   ```
   $ pip install ctdl
   ```
 
-- There seem to be some issues with parallel progress bars in tqdm which have 
-  been resolved in this [pull](https:// github.com/tqdm/tqdm/pull/385). Until this pull is merged, please use my patch by running this command:
+- There seem to be some issues with parallel progress bars in tqdm which have
+  been resolved in this [pull](https://github.com/tqdm/tqdm/pull/385). Until this pull is merged, please use my patch by running this command:
 
   ```
   $ pip install -U git+https://github.com/nikhilkumarsingh/tqdm
@@ -124,7 +124,7 @@ ctdl.download_content(query, filetype, directory, limit)
   $ pip install -r requirements.txt
   ```
 
-  **Note:** There seem to be some issues with current version of tqdm. If you do not get 
+  **Note:** There seem to be some issues with current version of tqdm. If you do not get
   expected progress bar behaviour, try this patch:
 
   ```
@@ -132,7 +132,7 @@ ctdl.download_content(query, filetype, directory, limit)
   $ pip install git+https://github.com/nikhilkumarsingh/tqdm
   ```
 
-- In ctdl/ctdl.py, remove the `.` prefix from `.downloader` and `.utils` for 
+- In ctdl/ctdl.py, remove the `.` prefix from `.downloader` and `.utils` for
   the following imports, so it changes from:
   ```python
   from .downloader import download_series, download_parallel

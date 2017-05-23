@@ -7,7 +7,7 @@ Python package with **command line utility** to download files on any
 topic in bulk.
 
 .. figure:: https://media.giphy.com/media/3oKIPlt7APHqWuVl3q/giphy.gif
-   :alt: 
+   :alt:
 
 **Features:** - ctdl fetches file links related to a search query from
 **Google Search**.
@@ -25,7 +25,7 @@ Installation
 
 -  There seem to be some issues with parallel progress bars in tqdm
    which have been resolved in this
-   `pull <https://%20github.com/tqdm/tqdm/pull/385>`__. Until this pull
+   `pull <https://github.com/tqdm/tqdm/pull/385>`__. Until this pull
    is merged, please use my patch by running this command:
 
 ``$ pip install -U git+https://github.com/nikhilkumarsingh/tqdm``
