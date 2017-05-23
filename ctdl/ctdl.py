@@ -1,3 +1,4 @@
+import sys
 import argparse
 import requests
 from bs4 import BeautifulSoup
@@ -44,23 +45,29 @@ def search(query, file_type = 'pdf', limit = 10):
 	return links[:limit]
 
 
-def download_content(query, file_type = 'pdf', directory = None, limit = 10, parallel = False):
-	if not directory:
-		directory = query.replace(' ', '-')
-
-	print("Downloading {0} {1} files on topic {2} and saving to directory: {3}".
-		  format(limit, file_type, query, directory))
-
-	links = search(query, file_type, limit)
-
-	if parallel:
-		download_parallel(links, directory)
-	else:
-		download_series(links, directory)
+def validate_args(**args):
+    if not args['query']:
+        print("\nMissing required query argument.")
+        sys.exit()
 
 
-def show_filetypes():
-	for item in FILE_EXTENSIONS.items():
+def download_content(**args):
+    if not args['directory']:
+        args['directory'] = args['query'].replace(' ', '-')
+
+    print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
+        .format(args['limit'], args['file_type'], args['query'], args['directory']))
+
+    links = search(args['query'], args['file_type'], args['limit'])
+
+    if args['parallel']:
+        download_parallel(links, args['directory'])
+    else:
+        download_series(links, args['directory'])
+
+
+def show_filetypes(extensions):
+	for item in extensions.items():
 		print("{0:4}: {1}".format(item[1], item[0]))
 
 
@@ -72,7 +79,7 @@ def main():
     parser.add_argument("query", type = str, default = None, nargs = '?',
     					help = "Specify the query.")
 
-    parser.add_argument("-f", "--file_type", type = str, default = 'pdf',
+    parser.add_argument("-g", "--file_type", type = str, default = 'pdf',
                         help = "Specify the extension of files to download.")
      
     parser.add_argument("-l", "--limit", type = int, default = 10,
@@ -81,18 +88,25 @@ def main():
     parser.add_argument("-d", "--directory", type = str, default = None,
                         help = "Specify directory where files will be stored.")
 
-    parser.add_argument("-p", "--parallel", action = 'store_true',
+    parser.add_argument("-p", "--parallel", action = 'store_true', default = False,
                         help = "For parallel downloading.")
 
     parser.add_argument("-a", "--available", action='store_true',
     					help = "Get list of all available filetypes.")
+
+    parser.add_argument("-t", "--threats", action='store_true',
+                        help = "Get list of all common virus carrier filetypes.")
  
     args = parser.parse_args()
-  
+    args_dict = vars(args)
+
     if args.available:
-    	show_filetypes()
-    else:
-    	download_content(args.query, args.file_type, args.directory, args.limit, args.parallel)
+        show_filetypes(FILE_EXTENSIONS)
+        return
+
+    validate_args(**args_dict)
+
+    download_content(**args_dict)
 
 
 if __name__ == "__main__":
