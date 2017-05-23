@@ -3,7 +3,7 @@ import argparse
 import requests
 from bs4 import BeautifulSoup
 from .downloader import download_series, download_parallel
-from .utils import FILE_EXTENSIONS
+from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
 
 search_url = "https://www.google.com/search"
 
@@ -45,6 +45,18 @@ def search(query, file_type = 'pdf', limit = 10):
 	return links[:limit]
 
 
+def check_threats(**args):
+    is_high_threat = False
+    for val in THREAT_EXTENSIONS.values():
+        if type(val) == list:
+            for el in val:
+                if args['file_type'] == el:
+                    is_high_threat = True
+        else:
+            if args['file_type'] == val:
+                is_high_threat = True
+    return is_high_threat
+
 def validate_args(**args):
     if not args['query']:
         print("\nMissing required query argument.")
@@ -67,9 +79,11 @@ def download_content(**args):
 
 
 def show_filetypes(extensions):
-	for item in extensions.items():
-		print("{0:4}: {1}".format(item[1], item[0]))
-
+    for item in extensions.items():
+        val = item[1]
+        if type(item[1]) == list:
+            val = ", ".join(str(x) for x in item[1])
+        print("{0:4}: {1}".format(val, item[0]))
 
 def main():
     parser = argparse.ArgumentParser(description = "Content Downloader",
@@ -96,7 +110,11 @@ def main():
 
     parser.add_argument("-t", "--threats", action='store_true',
                         help = "Get list of all common virus carrier filetypes.")
- 
+
+    parser.add_argument("-at", "--allow_threat", action='store_true',
+                        help = "Allow use of common virus carrier filetypes.")
+
+
     args = parser.parse_args()
     args_dict = vars(args)
 
@@ -104,8 +122,31 @@ def main():
         show_filetypes(FILE_EXTENSIONS)
         return
 
-    validate_args(**args_dict)
+    if args.threats:
+        show_filetypes(THREAT_EXTENSIONS)
+        return
 
+    high_threat = check_threats(**args_dict)
+
+    if high_threat and args.allow_threat:
+        def prompt(message, errormessage, isvalid, isexit):
+            res = None
+            while res is None:
+                res = input(str(message)+': ')
+                if isexit(res):
+                    sys.exit()
+                if not isvalid(res):
+                    print(str(errormessage))
+                    res = None
+            return res
+        prompt(
+            message = "WARNING: Downloading this file type may expose you to a heightened security risk.\nPress 'y' to proceed or 'n' to exit...\n",
+            errormessage= "Error: Invalid option provided.",
+            isvalid = lambda x:True if x is 'y' else None,
+            isexit = lambda x:True if x is 'n' else None
+        )
+
+    validate_args(**args_dict)
     download_content(**args_dict)
 
 

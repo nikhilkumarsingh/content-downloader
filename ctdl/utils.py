@@ -25,3 +25,13 @@ FILE_EXTENSIONS = {  'Adobe Flash':'swf',
 					 'Perl source code': 'pl',
 					 'Python source code': 'py',
 					 'Wireless Markup Languag': 'wml'}
+
+THREAT_EXTENSIONS = {
+    'Executable files': ['exe','com'],
+    'Program information file': 'pif',
+    'Screensaver file': 'scr',
+    'Visual Basic script': 'vbs',
+    'Shell scrap file': 'shs',
+    'Microsoft Compiled HTML Help': 'chm',
+    'Batch file': 'bat'
+}
