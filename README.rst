@@ -17,7 +17,7 @@ To install content-downloader, simply,
 
 ::
 
-    $ pip install ctdl
+    $ pip install -r requirements.txt
 
 Command line usage
 ------------------

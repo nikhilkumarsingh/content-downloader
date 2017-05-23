@@ -14,7 +14,7 @@ content-downloader supports Python 2 as well as Python 3.
 
 To install content-downloader, simply,
 ```
-$ pip install ctdl
+$ pip install -r requirements.txt
 ```
 
 ## Command line usage
