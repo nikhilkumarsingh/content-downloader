@@ -59,7 +59,7 @@ Here are some examples:
   $ ctdl -f ppt -l 3 health
   ```
 
-- To expicitly specify download folder:
+- To explicitly specify download folder:
 
   ```
   $ ctdl -d /home/nikhil/Desktop/ml-pdfs machine learning

@@ -1,12 +1,19 @@
 import sys
 import argparse
 import requests
+from requests.packages.urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
 from .downloader import download_series, download_parallel
 from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
 
 search_url = "https://www.google.com/search"
-
+s = requests.Session()
+# Max retries and back-off strategy so all requests to http:// sleep before retrying
+retries = Retry(total=5,
+                backoff_factor=0.1,
+                status_forcelist=[ 500, 502, 503, 504 ])
+s.mount('http://', HTTPAdapter(max_retries=retries))
 
 def scrape(html):
 	soup = BeautifulSoup(html, 'html5lib')
@@ -17,32 +24,39 @@ def scrape(html):
 		links.append(link)
 	return links
 
+def get_links(limit, params, headers):
+    """
+    every Google search result page has a start index.
+    every page contains 10 search results.
+    """
+    links = []
+    for start_index in range(0, limit, 10):
+        params['start'] = start_index
+        resp = s.get(search_url, params = params, headers = headers)
+        page_links = scrape(resp.content)
+        links.extend(page_links)
+    return links[:limit]
+
+def validate_links(links):
+    valid_links = []
+    for link in links:
+        if link[:7] in "http://" or link[:8] in "https://":
+            valid_links.append(link)
+    return valid_links
 
 def search(query, file_type = 'pdf', limit = 10):
-	gquery = "filetype:{0} {1}".format(file_type, query)
-	params = {
-		'q': gquery,
-		'start': 0,
-	}
-
-	headers = {
-		'User Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:53.0) \
-		               Gecko/20100101 Firefox/53.0'
-	}
-
-	links = []
-	
-	'''
-	every Google search result page has a start index.
-	every page contains 10 search results.
-	'''
-	for start_index in range(0, limit, 10):
-		params['start'] = start_index
-		resp = requests.get(search_url, params = params, headers = headers)
-		page_links = scrape(resp.content)
-		links.extend(page_links)
-
-	return links[:limit]
+    gquery = "filetype:{0} {1}".format(file_type, query)
+    params = {
+        'q': gquery,
+        'start': 0,
+    }
+    headers = {
+        'User Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:53.0) \
+        Gecko/20100101 Firefox/53.0'
+    }
+    links = get_links(limit, params, headers)
+    valid_links = validate_links(links)
+    return valid_links
 
 
 def check_threats(**args):
@@ -151,4 +165,4 @@ def main():
 
 
 if __name__ == "__main__":
-	main()
+    main()
