@@ -9,7 +9,7 @@ def readme():
 		pass
 
 setup(name = 'ctdl',
-      version = '1.3',
+      version = '1.4.1',
       classifiers = [
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
@@ -31,7 +31,7 @@ setup(name = 'ctdl',
       author_email = 'nikhilksingh97@gmail.com',
       license = 'MIT',
       packages = ['ctdl'],
-      install_requires = ['requests', 'bs4', 'html5lib'], 
+      install_requires = ['requests', 'bs4', 'lxml', 'tqdm'], 
       dependency_links = ['git+https://github.com/nikhilkumarsingh/tqdm'],
       include_package_data = True,
       entry_points="""
