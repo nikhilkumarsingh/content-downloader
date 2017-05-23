@@ -35,6 +35,12 @@ then the library `ctdl` may not have been updated to incorporate my changes. In 
 
     * Run the python file directly `python ctdl/ctdl.py ___` (instead of with `ctdl ___`)
 
+    * Note that after you install the dependencies with `pip install -r requirements.txt` you may optionally try other tqdm library Patches that may be used as follows:
+        ```
+        pip uninstall tqdm
+        pip install git+https://github.com/nikhilkumarsingh/tqdm
+        ```
+
 ```
 $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-a] [-p] [query]
 ```
