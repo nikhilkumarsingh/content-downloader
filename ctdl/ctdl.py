@@ -125,10 +125,6 @@ def main():
     parser.add_argument("-t", "--threats", action='store_true',
                         help = "Get list of all common virus carrier filetypes.")
 
-    parser.add_argument("-at", "--allow_threat", action='store_true',
-                        help = "Allow use of common virus carrier filetypes.")
-
-
     args = parser.parse_args()
     args_dict = vars(args)
 
@@ -142,7 +138,7 @@ def main():
 
     high_threat = check_threats(**args_dict)
 
-    if high_threat and args.allow_threat:
+    if high_threat:
         def prompt(message, errormessage, isvalid, isexit):
             res = None
             while res is None:
