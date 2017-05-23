@@ -32,6 +32,12 @@ Python package with **command line utility** to download files on any topic in b
 
 ## Command line usage
 
+    * Note that after you install the dependencies with `pip install -r requirements.txt` you may optionally try other tqdm library Patches that may be used as follows:
+        ```
+        pip uninstall tqdm
+        pip install git+https://github.com/nikhilkumarsingh/tqdm
+        ```
+
 ```
 $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-p] [-a] [-t] [query]
 ```
