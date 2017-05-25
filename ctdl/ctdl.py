@@ -1,6 +1,8 @@
 import sys
 import argparse
 import requests
+import urllib
+from urllib.request import urlopen
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
@@ -37,12 +39,32 @@ def get_links(limit, params, headers):
         links.extend(page_links)
     return links[:limit]
 
+def get_url_nofollow(url):
+    """ Credits: http://blog.jasonantman.com/2013/06/python-script-to-check-a-list-of-urls-for-return-code-and-final-return-code-if-redirected/
+    """
+    try:
+        response = urlopen(url)
+        code = response.getcode()
+        return code
+    except urllib.error.HTTPError as e:
+        return e.code
+    except:
+        return 0
+
 def validate_links(links):
     valid_links = []
     for link in links:
         if link[:7] in "http://" or link[:8] in "https://":
             valid_links.append(link)
-    return valid_links
+    urls = {}
+    for link in valid_links:
+        urls[link] = {'code': get_url_nofollow(link)}
+    available_urls = []
+    for url in urls:
+        print("Code: %d\tUrl: %s" % (urls[url]['code'], url))
+        if urls[url]['code'] != 0:
+            available_urls.append(url)
+    return available_urls
 
 def search(query, file_type = 'pdf', limit = 10):
     gquery = "filetype:{0} {1}".format(file_type, query)
@@ -87,9 +109,9 @@ def download_content(**args):
     links = search(args['query'], args['file_type'], args['limit'])
 
     if args['parallel']:
-        download_parallel(links, args['directory'])
+        download_parallel(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
     else:
-        download_series(links, args['directory'])
+        download_series(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
 
 
 def show_filetypes(extensions):
@@ -107,7 +129,7 @@ def main():
     parser.add_argument("query", type = str, default = None, nargs = '?',
     					help = "Specify the query.")
 
-    parser.add_argument("-g", "--file_type", type = str, default = 'pdf',
+    parser.add_argument("-f", "--file_type", type = str, default = 'pdf',
                         help = "Specify the extension of files to download.")
      
     parser.add_argument("-l", "--limit", type = int, default = 10,
@@ -124,6 +146,15 @@ def main():
 
     parser.add_argument("-t", "--threats", action='store_true',
                         help = "Get list of all common virus carrier filetypes.")
+
+    parser.add_argument("-minfs", "--min-file-size", type = int, default = 0,
+                        help = "Specify minimum file size to download in Kilobytes (KB).")
+
+    parser.add_argument("-maxfs", "--max-file-size", type = int, default = -1,
+                        help = "Specify maximum file size to download in Kilobytes (KB).")
+
+    parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = False,
+                        help = "Prevent download redirects.")
 
     args = parser.parse_args()
     args_dict = vars(args)
