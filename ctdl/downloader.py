@@ -1,6 +1,8 @@
 import os
 import threading
 import requests
+from requests.packages.urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 from tqdm import tqdm, trange
 
 chunk_size = 1024
@@ -10,19 +12,39 @@ blue_color = "\033[94m"
 
 # modes -> s: series | p: parallel
 
-def download(url, directory, pos = 0, mode = 's'):
+s = requests.Session()
+# Max retries and back-off strategy so all requests to http:// sleep before retrying
+retries = Retry(total=5,
+                backoff_factor=0.1,
+                status_forcelist=[ 500, 502, 503, 504 ])
+s.mount('http://', HTTPAdapter(max_retries=retries))
+
+def download(url, directory, min_file_size=0, max_file_size=-1, no_redirects=False, pos = 0, mode = 's'):
     global main_it
 
     file_name = url.split('/')[-1]
     file_address = directory + '/' + file_name
+    is_redirects = not no_redirects
 
-    resp = requests.get(url, stream = True)
+    resp = s.get(url, stream = True, allow_redirects=is_redirects)
+    if not resp.status_code == 200:
+        print("Not downloading file %r since url returned %r" % (file_name, resp.status_code))
+        return
     try:
         total_size = int(resp.headers['content-length'])
     except KeyError:
         total_size = len(resp.content)
 
     total_chunks = total_size/chunk_size
+
+    if total_chunks < min_file_size: # i.e. total_chunks value of 2000 is in KB
+        print("Not downloading file %r of file size %.2f MB since it is less than minimum of %.2f MB" % (file_name, total_chunks/1000, min_file_size/1000))
+        return
+    elif max_file_size != -1 and total_chunks > max_file_size:
+        print("Not downloading file %r of file size %.2f MB since it is more than maximum of %.2f MB" % (file_name, total_chunks/1000, max_file_size/1000))
+        return
+    print("Downloading file %r with file size %.2f MB" % (file_name, total_chunks/1000))
+
     file_iterable = resp.iter_content(chunk_size = chunk_size)
 
     tqdm_iter = tqdm(iterable = file_iterable, total = total_chunks, 
@@ -36,7 +58,7 @@ def download(url, directory, pos = 0, mode = 's'):
         main_iter.update(1)
 
 
-def download_parallel(urls, directory):
+def download_parallel(urls, directory, min_file_size, max_file_size, no_redirects):
     global main_iter
 
     # create directory to save files
@@ -51,8 +73,18 @@ def download_parallel(urls, directory):
 
     # creating threads
     for idx, url in enumerate(urls):
-        t = threading.Thread(target = download, kwargs = {'url': url, 
-            'directory': directory, 'pos': 2*idx+3, 'mode': 'p'})
+        t = threading.Thread(
+            target = download,
+            kwargs = {
+                'url': url,
+                'directory': directory,
+                'pos': 2*idx+3,
+                'mode': 'p',
+                'min_file_size': min_file_size,
+                'max_file_size': max_file_size,
+                'no_redirects': no_redirects
+            }
+        )
         threads.append(t)
 
     # start all threads
@@ -66,7 +98,7 @@ def download_parallel(urls, directory):
     print("\nDownload complete.")
 
 
-def download_series(urls, directory):
+def download_series(urls, directory, min_file_size, max_file_size):
 
     # create directory to save files
     if not os.path.exists(directory):
@@ -74,6 +106,6 @@ def download_series(urls, directory):
 
     # download files one by one
     for url in urls:
-        download(url, directory)
+        download(url, directory, min_file_size, max_file_size)
 
     print("Download complete.")
