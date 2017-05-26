@@ -1,32 +1,36 @@
-[![PyPI](https://img.shields.io/badge/PyPi-v1.3-f39f37.svg)](https://pypi.python.org/pypi/ctdl)
+[![PyPI](https://img.shields.io/badge/PyPi-v1.4-f39f37.svg)](https://pypi.python.org/pypi/ctdl)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/nikhilkumarsingh/content-downloader/blob/master/LICENSE.txt)
 
 # content-downloader
 
 Python package with **command line utility** to download files on any topic in bulk.
 
-content-downloader supports Python 2 as well as Python 3.
-
-**Feature update:** Download files parallely.
 ![](https://media.giphy.com/media/3oKIPlt7APHqWuVl3q/giphy.gif)
+
+## Features
+
+- ctdl fetches file links related to a search query from **Google Search**.
+
+- Files can be downloaded parallely using multithreading.
+
+- ctdl is Python 2 as well as Python 3 compatible.
 
 ## Installation
 
-To install content-downloader, simply,
-```
-$ pip install -r requirements.txt
-```
+- To install content-downloader, simply,
 
-Update CTDL packages since the `ctdl` command calls the pypi ctdl package:
-```
-$ pip install -U .
-```
+  ```
+  $ pip install ctdl
+  ```
 
-* Note that after you install the dependencies with `pip install -r requirements.txt` you may optionally try other tqdm library Patches that may be used as follows:
-    ```
-    pip uninstall tqdm
-    pip install git+https://github.com/nikhilkumarsingh/tqdm
-    ```
+## Important Notes
+
+- There seem to be some issues with parallel progress bars in tqdm which have
+  been resolved in this [pull](https://github.com/tqdm/tqdm/pull/385). Until this pull is merged, please use my patch by running this command:
+
+  ```
+  $ pip install -U git+https://github.com/nikhilkumarsingh/tqdm
+  ```
 
 ## Command line usage
 
@@ -35,6 +39,7 @@ $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-p] [-a] [-t]
        [-minfs MIN_FILE_SIZE] [-maxfs MAX_FILE_SIZE] [-nr]
        [query]
 ```
+
 Optional arguments are:
 
 - -f FILE_TYPE : set the file type. (can take values like ppt, pdf, xml, etc.)
@@ -51,10 +56,6 @@ Optional arguments are:
 
 - -p : for parallel downloading.
 
-- -a : list of all available filetypes.
-
-- -t : list of all common virus carrier filetypes.
-
 - -minfs MIN_FILE_SIZE : specify minimum file size to download in Kilobytes (KB).
 
                  Default: 0
@@ -67,7 +68,8 @@ Optional arguments are:
 
                  Default: False
 
-Here are some examples:
+
+## Examples
 
 - To get list of available filetypes:
 
@@ -97,7 +99,7 @@ Here are some examples:
 - To explicitly specify download folder:
 
   ```
-  $ ctdl -d /home/nikhil/Desktop/ml-pdfs machine learning
+  $ ctdl -d /home/nikhil/Desktop/ml-pdfs machine-learning
   ```
 
 - To download files parallely:
@@ -114,6 +116,12 @@ Here are some examples:
   ```
 
 ## Flask server API with Query Parameters usage
+
+* Install Flask dependency:
+
+    ```
+    pip install flask
+    ```
 
 * Start a Flask server in a Terminal Window No. 1:
 
@@ -140,7 +148,8 @@ Here are some examples:
 
     ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/curl_query_to_flask_server.png)
 
-* Go back to Terminal Window No. 1 to see the Flask server process your downloads
+* Go back to Terminal Window No. 1 to see the Flask server process your downloads and
+and saves them in new folder 'dogs-cats' (which is named based on the query parameters)
 
     ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/flask_server_running_and_processes_curl_request.png)
 
@@ -156,3 +165,54 @@ query = 'machine learning using python'
 
 ctdl.download_content(query, filetype, directory, limit)
 ```
+
+## TODO
+
+- [X] Prompt user before downloading potentially threatful files
+- [X] Example Flask server API implementation with query parameters
+- [ ] Implement unit testing
+- [ ] Create ctdl GUI
+- [ ] Use DuckDuckgo API as an option
+
+## Want to contribute?
+
+- Clone the repository
+
+  ```
+  $ git clone http://github.com/nikhilkumarsingh/content-downloader
+  ```
+
+- Install dependencies
+  ```
+  $ pip install -r requirements.txt
+  ```
+
+**Note:** There seem to be some issues with current version of tqdm. If you do not get
+expected progress bar behaviour, try this patch:
+
+  ```
+  $ pip uninstall tqdm
+  $ pip install git+https://github.com/nikhilkumarsingh/tqdm
+  ```
+
+* If you have any other issues running `ctdl` and loading modules then run the following
+(since `ctdl` command calls the PyPI ctdl package):
+
+    ```
+    $ pip install -U .
+    ```
+
+    * If the problem still persists then in ctdl/ctdl.py, try removing the `.` prefix
+    from `.downloader` and `.utils` for the following imports, so it changes from:
+        ```python
+        from .downloader import download_series, download_parallel
+        from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+        ```
+        to:
+        ```python
+        from downloader import download_series, download_parallel
+        from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+        ```
+
+    * Also try running the python file directly with `python ctdl/ctdl.py ___`
+    (instead of with `ctdl ___`)

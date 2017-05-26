@@ -14,22 +14,26 @@ blue_color = "\033[94m"
 
 s = requests.Session()
 # Max retries and back-off strategy so all requests to http:// sleep before retrying
-retries = Retry(total=5,
-                backoff_factor=0.1,
-                status_forcelist=[ 500, 502, 503, 504 ])
-s.mount('http://', HTTPAdapter(max_retries=retries))
+retries = Retry(total = 5,
+                backoff_factor = 0.1,
+                status_forcelist = [ 500, 502, 503, 504 ])
+s.mount('http://', HTTPAdapter(max_retries = retries))
 
-def download(url, directory, min_file_size=0, max_file_size=-1, no_redirects=False, pos = 0, mode = 's'):
+
+def download(url, directory, min_file_size = 0, max_file_size = -1, 
+	         no_redirects = False, pos = 0, mode = 's'):
     global main_it
 
     file_name = url.split('/')[-1]
     file_address = directory + '/' + file_name
     is_redirects = not no_redirects
 
-    resp = s.get(url, stream = True, allow_redirects=is_redirects)
+    resp = s.get(url, stream = True, allow_redirects = is_redirects)
+
     if not resp.status_code == 200:
-        print("Not downloading file %r since url returned %r" % (file_name, resp.status_code))
+    	# ignore this file since server returns invalid response
         return
+
     try:
         total_size = int(resp.headers['content-length'])
     except KeyError:
@@ -37,13 +41,12 @@ def download(url, directory, min_file_size=0, max_file_size=-1, no_redirects=Fal
 
     total_chunks = total_size/chunk_size
 
-    if total_chunks < min_file_size: # i.e. total_chunks value of 2000 is in KB
-        print("Not downloading file %r of file size %.2f MB since it is less than minimum of %.2f MB" % (file_name, total_chunks/1000, min_file_size/1000))
+    if total_chunks < min_file_size: 
+    	# ignore this file since file size is lesser than min_file_size
         return
     elif max_file_size != -1 and total_chunks > max_file_size:
-        print("Not downloading file %r of file size %.2f MB since it is more than maximum of %.2f MB" % (file_name, total_chunks/1000, max_file_size/1000))
+    	# ignore this file since file size is greater than max_file_size
         return
-    print("Downloading file %r with file size %.2f MB" % (file_name, total_chunks/1000))
 
     file_iterable = resp.iter_content(chunk_size = chunk_size)
 
@@ -95,7 +98,9 @@ def download_parallel(urls, directory, min_file_size, max_file_size, no_redirect
     for t in threads[::-1]:
         t.join()
 
-    print("\nDownload complete.")
+    main_iter.close()
+
+    print("\n\nDownload complete.")
 
 
 def download_series(urls, directory, min_file_size, max_file_size, no_redirects):
@@ -106,6 +111,6 @@ def download_series(urls, directory, min_file_size, max_file_size, no_redirects)
 
     # download files one by one
     for url in urls:
-        download(url, directory, min_file_size, max_file_size)
+        download(url, directory, min_file_size, max_file_size, no_redirects)
 
     print("Download complete.")

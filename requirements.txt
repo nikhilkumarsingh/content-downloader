@@ -2,4 +2,3 @@ requests
 lxml
 bs4
 tqdm
-flask==0.12.1
