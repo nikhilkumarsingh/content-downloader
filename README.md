@@ -30,29 +30,16 @@ Python package with **command line utility** to download files on any topic in b
   $ pip install -U git+https://github.com/nikhilkumarsingh/tqdm
   ```
 
-## Important Notes
+Update CTDL packages since the `ctdl` command calls the pypi ctdl package:
+```
+$ pip install -U .
+```
 
-* **IMPORTANT NOTE**: If the command `ctdl` does not accept arguments and results in error
-then the library `ctdl` may not have been updated to incorporate my changes. In this case do the following:
-    * In ctdl/ctdl.py, remove the `.` prefix from `.downloader` and `.utils` for the following imports, so it changes:
-        * FROM
-            ```
-            from .downloader import download_series, download_parallel
-            from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
-            ```
-        * TO
-            ```
-            from downloader import download_series, download_parallel
-            from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
-            ```
-
-    * Run the python file directly `python ctdl/ctdl.py ___` (instead of with `ctdl ___`)
-
-    * Note that after you install the dependencies with `pip install -r requirements.txt` you may optionally try other tqdm library Patches that may be used as follows:
-        ```
-        pip uninstall tqdm
-        pip install git+https://github.com/nikhilkumarsingh/tqdm
-        ```
+* Note that after you install the dependencies with `pip install -r requirements.txt` you may optionally try other tqdm library Patches that may be used as follows:
+    ```
+    pip uninstall tqdm
+    pip install git+https://github.com/nikhilkumarsingh/tqdm
+    ```
 
 ## Command line usage
 
@@ -142,7 +129,11 @@ Optional arguments are:
 
 ## Flask server API with Query Parameters usage
 
-* Start a Flask server in a Terminal Window No. 1: `ctdl server.py` or `python ctdl/server.py`
+* Start a Flask server in a Terminal Window No. 1:
+
+    ```
+    python examples/server.py
+    ```
 
     ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/flask_server_running.png)
 
