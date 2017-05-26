@@ -178,7 +178,8 @@ Optional arguments are:
 
     ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/curl_query_to_flask_server.png)
 
-* Go back to Terminal Window No. 1 to see the Flask server process your downloads
+* Go back to Terminal Window No. 1 to see the Flask server process your downloads and
+and saves them in new folder 'dogs-cats' (which is named based on the query parameters)
 
     ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/flask_server_running_and_processes_curl_request.png)
 
