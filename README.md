@@ -33,7 +33,9 @@ Python package with **command line utility** to download files on any topic in b
 ## Command line usage
 
 ```
-$ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-p] [-a] [-t] [query]
+$ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-p] [-a] [-t]
+       [-minfs MIN_FILE_SIZE] [-maxfs MAX_FILE_SIZE] [-nr]
+       [query]
 ```
 Optional arguments are:
 
@@ -50,6 +52,22 @@ Optional arguments are:
                  Default: A directory with same name as the search query in the current directory.
 
 - -p : for parallel downloading.
+
+- -a : list of all available filetypes.
+
+- -t : list of all common virus carrier filetypes.
+
+- -minfs MIN_FILE_SIZE : specify minimum file size to download in Kilobytes (KB).
+
+                 Default: 0
+
+- -maxfs MAX_FILE_SIZE : specify maximum file size to download in Kilobytes (KB).
+
+                 Default: -1 (represents no maximum file size)
+
+- -nr : prevent download redirects.
+
+                 Default: False
 
 
 ## Examples
@@ -90,6 +108,13 @@ Optional arguments are:
   $ ctdl -f pdf -p python
   ```
 
+- To search for and download in parallel 10 files in PDF format containing
+  the text "python" and "algorithm", without allowing any url redirects,
+  and where the file size is between 10,000 KB (10 MB) and 100,000KB (100 MB),
+  where KB means Kilobytes, which has an equivalent value expressed in Megabytes:
+  ```
+  $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"`
+  ```
 
 ## Usage in Python files
 
