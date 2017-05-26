@@ -30,6 +30,30 @@ Python package with **command line utility** to download files on any topic in b
   $ pip install -U git+https://github.com/nikhilkumarsingh/tqdm
   ```
 
+## Important Notes
+
+* **IMPORTANT NOTE**: If the command `ctdl` does not accept arguments and results in error
+then the library `ctdl` may not have been updated to incorporate my changes. In this case do the following:
+    * In ctdl/ctdl.py, remove the `.` prefix from `.downloader` and `.utils` for the following imports, so it changes:
+        * FROM
+            ```
+            from .downloader import download_series, download_parallel
+            from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+            ```
+        * TO
+            ```
+            from downloader import download_series, download_parallel
+            from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+            ```
+
+    * Run the python file directly `python ctdl/ctdl.py ___` (instead of with `ctdl ___`)
+
+    * Note that after you install the dependencies with `pip install -r requirements.txt` you may optionally try other tqdm library Patches that may be used as follows:
+        ```
+        pip uninstall tqdm
+        pip install git+https://github.com/nikhilkumarsingh/tqdm
+        ```
+
 ## Command line usage
 
 ```
@@ -52,6 +76,10 @@ Optional arguments are:
                  Default: A directory with same name as the search query in the current directory.
 
 - -p : for parallel downloading.
+
+- -a : list of all available filetypes.
+
+- -t : list of all common virus carrier filetypes.
 
 - -minfs MIN_FILE_SIZE : specify minimum file size to download in Kilobytes (KB).
 
@@ -109,8 +137,20 @@ Optional arguments are:
   and where the file size is between 10,000 KB (10 MB) and 100,000KB (100 MB),
   where KB means Kilobytes, which has an equivalent value expressed in Megabytes:
   ```
-  $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"`
+  $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"
   ```
+
+## Flask server API with Query Parameters usage
+
+* Start a Flask server in a Terminal Window No. 1: `ctdl server.py` or `python ctdl/server.py`
+
+* Open another Terminal Window No. 2 and run cURL passing Query Parameters:
+
+    ```
+    curl -i "http://localhost:5000/api/v1.0/query?query=dogs,cats&file_type=pdf&limit=5&directory=None&parallel=True&available=False&threats=False&min_file_size=0&max_file_size=-1&no_redirects=True"
+    ```
+
+* Go back to Terminal Window No. 1 to see the Flask server process your downloads
 
 ## Usage in Python files
 
