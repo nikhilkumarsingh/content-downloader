@@ -84,9 +84,6 @@ Usage in Python files
 
     ctdl.download_content(query, filetype, directory, limit)
 
-.. figure:: https://github.com/nikhilkumarsingh/content-downloader/blob/master/example.png
-   :alt: 
-
 .. |PyPI| image:: https://img.shields.io/badge/PyPi-v1.3-f39f37.svg
    :target: https://pypi.python.org/pypi/ctdl
 .. |license| image:: https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000
