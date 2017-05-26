@@ -6,10 +6,11 @@ from urllib.request import urlopen
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
-from .downloader import download_series, download_parallel
-from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+from downloader import download_series, download_parallel
+from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
 
 search_url = "https://www.google.com/search"
+
 s = requests.Session()
 # Max retries and back-off strategy so all requests to http:// sleep before retrying
 retries = Retry(total=5,
@@ -17,14 +18,16 @@ retries = Retry(total=5,
                 status_forcelist=[ 500, 502, 503, 504 ])
 s.mount('http://', HTTPAdapter(max_retries=retries))
 
+
 def scrape(html):
-	soup = BeautifulSoup(html, 'html5lib')
+	soup = BeautifulSoup(html, 'lxml')
 	results = soup.findAll('h3', {'class': 'r'})
 	links = []
 	for result in results:
 		link = result.a['href'][7:].split('&')[0]
 		links.append(link)
 	return links
+
 
 def get_links(limit, params, headers):
     """
@@ -51,6 +54,7 @@ def get_url_nofollow(url):
     except:
         return 0
 
+
 def validate_links(links):
     valid_links = []
     for link in links:
@@ -65,6 +69,7 @@ def validate_links(links):
         if urls[url]['code'] != 0:
             available_urls.append(url)
     return available_urls
+
 
 def search(query, file_type = 'pdf', limit = 10):
     gquery = "filetype:{0} {1}".format(file_type, query)
@@ -88,10 +93,13 @@ def check_threats(**args):
             for el in val:
                 if args['file_type'] == el:
                     is_high_threat = True
+                    break
         else:
             if args['file_type'] == val:
                 is_high_threat = True
+                break
     return is_high_threat
+
 
 def validate_args(**args):
     if not args['query']:
@@ -120,6 +128,7 @@ def show_filetypes(extensions):
         if type(item[1]) == list:
             val = ", ".join(str(x) for x in item[1])
         print("{0:4}: {1}".format(val, item[0]))
+
 
 def main():
     parser = argparse.ArgumentParser(description = "Content Downloader",
@@ -181,7 +190,7 @@ def main():
                     res = None
             return res
         prompt(
-            message = "WARNING: Downloading this file type may expose you to a heightened security risk.\nPress 'y' to proceed or 'n' to exit...\n",
+            message = "WARNING: Downloading this file type may expose you to a heightened security risk.\nPress 'y' to proceed or 'n' to exit",
             errormessage= "Error: Invalid option provided.",
             isvalid = lambda x:True if x is 'y' else None,
             isexit = lambda x:True if x is 'n' else None

@@ -1,2 +1,4 @@
-ctdl==1.3
-tqdm==4.11.2
+requests
+lxml
+bs4
+tqdm
