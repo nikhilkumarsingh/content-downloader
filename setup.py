@@ -9,7 +9,7 @@ def readme():
 		pass
 
 setup(name = 'ctdl',
-      version = '1.4.1',
+      version = '1.4.5',
       classifiers = [
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
