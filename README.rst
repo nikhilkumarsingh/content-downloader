@@ -7,7 +7,7 @@ Python package with **command line utility** to download files on any
 topic in bulk.
 
 .. figure:: https://media.giphy.com/media/3oKIPlt7APHqWuVl3q/giphy.gif
-   :alt: 
+   :alt:
 
 Features
 --------
