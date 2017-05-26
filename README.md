@@ -23,6 +23,8 @@ Python package with **command line utility** to download files on any topic in b
   $ pip install ctdl
   ```
 
+## Important Notes
+
 - There seem to be some issues with parallel progress bars in tqdm which have
   been resolved in this [pull](https://github.com/tqdm/tqdm/pull/385). Until this pull is merged, please use my patch by running this command:
 
@@ -37,6 +39,7 @@ $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-p] [-a] [-t]
        [-minfs MIN_FILE_SIZE] [-maxfs MAX_FILE_SIZE] [-nr]
        [query]
 ```
+
 Optional arguments are:
 
 - -f FILE_TYPE : set the file type. (can take values like ppt, pdf, xml, etc.)
@@ -109,8 +112,45 @@ Optional arguments are:
   and where the file size is between 10,000 KB (10 MB) and 100,000KB (100 MB),
   where KB means Kilobytes, which has an equivalent value expressed in Megabytes:
   ```
-  $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"`
+  $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"
   ```
+
+## Flask server API with Query Parameters usage
+
+* Install Flask dependency:
+
+    ```
+    pip install flask
+    ```
+
+* Start a Flask server in a Terminal Window No. 1:
+
+    ```
+    python examples/server.py
+    ```
+
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/flask_server_running.png)
+
+* Open another Terminal Window No. 2 and run cURL passing Query Parameters:
+
+    * Example 1:
+        * Note: Defaults are applied for any missing parameters, as shown in logs of screenshot below.
+        The `query` values are mandatory.
+        ```
+        curl -i "http://localhost:5000/api/v1.0/query?query=dogs,cats"
+        ```
+
+    * Example 2:
+        * Note: Explicitely override Defaults that would be otherwise applied
+        ```
+        curl -i "http://localhost:5000/api/v1.0/query?query=dogs,cats&file_type=pdf&limit=5&directory=None&parallel=True&available=False&threats=False&min_file_size=0&max_file_size=-1&no_redirects=True"
+        ```
+
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/curl_query_to_flask_server.png)
+
+* Go back to Terminal Window No. 1 to see the Flask server process your downloads
+
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/flask_server_running_and_processes_curl_request.png)
 
 ## Usage in Python files
 
@@ -128,6 +168,7 @@ ctdl.download_content(query, filetype, directory, limit)
 ## TODO
 
 - [X] Prompt user before downloading potentially threatful files
+- [X] Example Flask server API implementation with query parameters
 - [ ] Implement unit testing
 - [ ] Create ctdl GUI
 - [ ] Use DuckDuckgo API as an option
@@ -145,25 +186,33 @@ ctdl.download_content(query, filetype, directory, limit)
   $ pip install -r requirements.txt
   ```
 
-  **Note:** There seem to be some issues with current version of tqdm. If you do not get
-  expected progress bar behaviour, try this patch:
+**Note:** There seem to be some issues with current version of tqdm. If you do not get
+expected progress bar behaviour, try this patch:
 
   ```
   $ pip uninstall tqdm
   $ pip install git+https://github.com/nikhilkumarsingh/tqdm
   ```
 
-- In ctdl/ctdl.py, remove the `.` prefix from `.downloader` and `.utils` for
-  the following imports, so it changes from:
-  ```python
-  from .downloader import download_series, download_parallel
-  from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
-  ```
-  to:
-  ```python
-  from downloader import download_series, download_parallel
-  from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
-  ```
+* If you have any other issues running `ctdl` and loading modules then run the following
+(since `ctdl` command calls the PyPI ctdl package):
 
-- Run the python file directly `python ctdl/ctdl.py ___` (instead of with `ctdl ___`)
+    ```
+    $ pip install -U .
+    ```
+
+    * If the problem still persists then in ctdl/ctdl.py, try removing the `.` prefix
+    from `.downloader` and `.utils` for the following imports, so it changes from:
+        ```python
+        from .downloader import download_series, download_parallel
+        from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+        ```
+        to:
+        ```python
+        from downloader import download_series, download_parallel
+        from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+        ```
+
+    * Also try running the python file directly with `python ctdl/ctdl.py ___`
+    (instead of with `ctdl ___`)
 
