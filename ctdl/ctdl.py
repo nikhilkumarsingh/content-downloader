@@ -100,6 +100,7 @@ def validate_args(**args):
 
 
 def download_content(**args):
+    args['query'] = args['query'].replace(',', ' ')
     if not args['directory']:
         args['directory'] = args['query'].replace(' ', '-')
 
@@ -121,7 +122,8 @@ def show_filetypes(extensions):
             val = ", ".join(str(x) for x in item[1])
         print("{0:4}: {1}".format(val, item[0]))
 
-def main():
+def main(query_params={}, **args):
+
     parser = argparse.ArgumentParser(description = "Content Downloader",
     								 epilog="Now download files on any topic in bulk!")
  
@@ -159,15 +161,42 @@ def main():
     args = parser.parse_args()
     args_dict = vars(args)
 
-    if args.available:
+    print("CTDL received Flask API endpoint Query Parameters: ", query_params, file=sys.stderr)
+    print("CTDL using CLI Arguments: ", args_dict, file=sys.stderr)
+
+    mapped_query_params = {}
+    if len(query_params):
+        def map_query_params(query_params):
+            """
+            Convert Query Parameter values to correct type
+            """
+            mapped_query_params = {}
+            for key, val in query_params.items():
+                if val == 'None':
+                    mapped_query_params[key] = None
+                elif val == 'True':
+                    mapped_query_params[key] = True
+                elif val == 'False':
+                    mapped_query_params[key] = False
+                elif key in ['limit', 'min_file_size', 'max_file_size']:
+                    mapped_query_params[key] = int(val)
+                else:
+                    mapped_query_params[key] = val
+            return mapped_query_params
+        mapped_query_params = map_query_params(query_params)
+
+    if args.available or (mapped_query_params and mapped_query_params['available']):
         show_filetypes(FILE_EXTENSIONS)
         return
 
-    if args.threats:
+    if args.threats or (mapped_query_params and mapped_query_params['threats']):
         show_filetypes(THREAT_EXTENSIONS)
         return
 
-    high_threat = check_threats(**args_dict)
+    if len(mapped_query_params):
+        high_threat = check_threats(**mapped_query_params)
+    else:
+        high_threat = check_threats(**args_dict)
 
     if high_threat:
         def prompt(message, errormessage, isvalid, isexit):
@@ -187,9 +216,14 @@ def main():
             isexit = lambda x:True if x is 'n' else None
         )
 
-    validate_args(**args_dict)
-    download_content(**args_dict)
-
+    if len(query_params):
+        print("Processing CTDL with received Flask API endpoint Query Parameters: ", mapped_query_params, file=sys.stderr)
+        validate_args(**mapped_query_params)
+        download_content(**mapped_query_params)
+    else:
+        print("Processing CTDL with CLI Arguments: ", args_dict, file=sys.stderr)
+        validate_args(**args_dict)
+        download_content(**args_dict)
 
 if __name__ == "__main__":
     main()

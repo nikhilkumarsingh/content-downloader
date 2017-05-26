@@ -17,7 +17,7 @@ To install content-downloader, simply,
 $ pip install -r requirements.txt
 ```
 
-## Command line usage
+## Important Notes
 
 * **IMPORTANT NOTE**: If the command `ctdl` does not accept arguments and results in error
 then the library `ctdl` may not have been updated to incorporate my changes. In this case do the following:
@@ -40,6 +40,8 @@ then the library `ctdl` may not have been updated to incorporate my changes. In 
         pip uninstall tqdm
         pip install git+https://github.com/nikhilkumarsingh/tqdm
         ```
+
+## Command line usage
 
 ```
 $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-p] [-a] [-t]
@@ -121,8 +123,20 @@ Here are some examples:
   and where the file size is between 10,000 KB (10 MB) and 100,000KB (100 MB),
   where KB means Kilobytes, which has an equivalent value expressed in Megabytes:
   ```
-  $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"`
+  $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"
   ```
+
+## Flask server API with Query Parameters usage
+
+* Start a Flask server in a Terminal Window No. 1: `ctdl server.py` or `python ctdl/server.py`
+
+* Open another Terminal Window No. 2 and run cURL passing Query Parameters:
+
+    ```
+    curl -i "http://localhost:5000/api/v1.0/query?query=dogs,cats&file_type=pdf&limit=5&directory=None&parallel=True&available=False&threats=False&min_file_size=0&max_file_size=-1&no_redirects=True"
+    ```
+
+* Go back to Terminal Window No. 1 to see the Flask server process your downloads
 
 ## Usage in Python files
 

@@ -98,7 +98,7 @@ def download_parallel(urls, directory, min_file_size, max_file_size, no_redirect
     print("\nDownload complete.")
 
 
-def download_series(urls, directory, min_file_size, max_file_size):
+def download_series(urls, directory, min_file_size, max_file_size, no_redirects):
 
     # create directory to save files
     if not os.path.exists(directory):
