@@ -10,7 +10,7 @@ from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
 from .downloader import download_series, download_parallel
-from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+from .utils import DEFAULT_ARGS, FILE_EXTENSIONS, THREAT_EXTENSIONS
 
 search_url = "https://www.google.com/search"
 
@@ -111,7 +111,7 @@ def search(query, file_type = 'pdf', limit = 10):
 
 def check_threats(**args):
 	"""
-	function to check input filetype against threat extensions list 
+	function to check input filetype against threat extensions list
 	"""
 	is_high_threat = False
 	for val in THREAT_EXTENSIONS.values():
@@ -140,6 +140,7 @@ def download_content(**args):
 	"""
 	main function to fetch links and download them
 	"""
+	args['query'] = args['query'].replace(',', ' ')
 	if not args['directory']:
 		args['directory'] = args['query'].replace(' ', '-')
 
@@ -165,25 +166,25 @@ def show_filetypes(extensions):
 		print("{0:4}: {1}".format(val, item[0]))
 
 
-def main():
+def main(query_params={}, **args):
 	parser = argparse.ArgumentParser(description = "Content Downloader",
 									 epilog="Now download files on any topic in bulk!")
- 
+
 	# defining arguments for parser object
-	parser.add_argument("query", type = str, default = None, nargs = '?',
-						help = "Specify the query.")
+	parser.add_argument("query", type = str, default = DEFAULT_ARGS['query'], nargs = '?',
+    					help = "Specify the query.")
 
-	parser.add_argument("-f", "--file_type", type = str, default = 'pdf',
-						help = "Specify the extension of files to download.")
-	 
-	parser.add_argument("-l", "--limit", type = int, default = 10,
-						help = "Limit the number of search results (in multiples of 10).")
-	 
-	parser.add_argument("-d", "--directory", type = str, default = None,
-						help = "Specify directory where files will be stored.")
+	parser.add_argument("-f", "--file_type", type = str, default = DEFAULT_ARGS['file_type'],
+                        help = "Specify the extension of files to download.")
+     
+	parser.add_argument("-l", "--limit", type = int, default = DEFAULT_ARGS['limit'],
+                        help = "Limit the number of search results (in multiples of 10).")
+     
+	parser.add_argument("-d", "--directory", type = str, default = DEFAULT_ARGS['directory'],
+                        help = "Specify directory where files will be stored.")
 
-	parser.add_argument("-p", "--parallel", action = 'store_true', default = False,
-						help = "For parallel downloading.")
+	parser.add_argument("-p", "--parallel", action = 'store_true', default = DEFAULT_ARGS['parallel'],
+                        help = "For parallel downloading.")
 
 	parser.add_argument("-a", "--available", action='store_true',
 						help = "Get list of all available filetypes.")
@@ -191,27 +192,65 @@ def main():
 	parser.add_argument("-t", "--threats", action='store_true',
 						help = "Get list of all common virus carrier filetypes.")
 
-	parser.add_argument("-minfs", "--min-file-size", type = int, default = 0,
-						help = "Specify minimum file size to download in Kilobytes (KB).")
+	parser.add_argument("-minfs", "--min-file-size", type = int, default = DEFAULT_ARGS['min_file_size'],
+                        help = "Specify minimum file size to download in Kilobytes (KB).")
 
-	parser.add_argument("-maxfs", "--max-file-size", type = int, default = -1,
-						help = "Specify maximum file size to download in Kilobytes (KB).")
+	parser.add_argument("-maxfs", "--max-file-size", type = int, default = DEFAULT_ARGS['max_file_size'],
+                        help = "Specify maximum file size to download in Kilobytes (KB).")
 
-	parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = False,
-						help = "Prevent download redirects.")
+	parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = DEFAULT_ARGS['no_redirects'],
+                        help = "Prevent download redirects.")
 
 	args = parser.parse_args()
 	args_dict = vars(args)
 
-	if args.available:
+	print("\n\nCTDL received Flask API endpoint Query Parameters: ", query_params, file=sys.stderr)
+	print("CTDL using CLI Arguments: ", args_dict, file=sys.stderr)
+	print("\n\n")
+
+	mapped_query_params = {}
+	if len(query_params):
+		def add_missing_keys_with_defaults(query_params):
+			"""
+            Add defaults where not provided in Query Parameters
+            """
+			for key, val in DEFAULT_ARGS.items():
+				if not key in query_params:
+					query_params[key] = val
+			return query_params
+
+		def map_query_params(query_params):
+			"""
+			Convert Query Parameter values to correct type
+			"""
+			mapped_query_params = {}
+			for key, val in query_params.items():
+				if val == 'None':
+					mapped_query_params[key] = None
+				elif val == 'True':
+					mapped_query_params[key] = True
+				elif val == 'False':
+					mapped_query_params[key] = False
+				elif key in ['limit', 'min_file_size', 'max_file_size']:
+					mapped_query_params[key] = int(val)
+				else:
+					mapped_query_params[key] = val
+			return mapped_query_params
+		query_params_all_required_keys = add_missing_keys_with_defaults(query_params)
+		mapped_query_params = map_query_params(query_params_all_required_keys)
+
+	if args.available or (mapped_query_params and mapped_query_params['available']):
 		show_filetypes(FILE_EXTENSIONS)
 		return
 
-	if args.threats:
+	if args.threats or (mapped_query_params and mapped_query_params['threats']):
 		show_filetypes(THREAT_EXTENSIONS)
 		return
 
-	high_threat = check_threats(**args_dict)
+	if len(mapped_query_params):
+		high_threat = check_threats(**mapped_query_params)
+	else:
+		high_threat = check_threats(**args_dict)
 
 	if high_threat:
 		def prompt(message, errormessage, isvalid, isexit):
@@ -231,9 +270,14 @@ def main():
 			isexit = lambda x:True if x is 'n' else None
 		)
 
-	validate_args(**args_dict)
-	download_content(**args_dict)
-
+	if len(query_params):
+		print("Processing CTDL with received Flask API endpoint Query Parameters: ", mapped_query_params, file=sys.stderr)
+		validate_args(**mapped_query_params)
+		download_content(**mapped_query_params)
+	else:
+		print("Processing CTDL with CLI Arguments: ", args_dict, file=sys.stderr)
+		validate_args(**args_dict)
+		download_content(**args_dict)
 
 if __name__ == "__main__":
 	main()
