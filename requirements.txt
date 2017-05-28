@@ -1,4 +1,4 @@
-requests
+requests>=2.5.0
 lxml
 bs4
 tqdm
