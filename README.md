@@ -128,7 +128,7 @@ Optional arguments are:
 * Install appJar. See [appJar Widgets for info](http://appjar.info/pythonWidgets/)
 
     ```
-    pip install appjar
+    pip install appjar pyyaml
     ```
 
 * Start GUI
