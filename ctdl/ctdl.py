@@ -6,11 +6,15 @@ try:
 	from urllib.request import urlopen
 except ImportError:
 	from urllib2 import urlopen
+try:
+	from urllib.error import HTTPError
+except:
+	from urllib2 import HTTPError
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
-from .downloader import download_series, download_parallel
-from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+from downloader import download_series, download_parallel
+from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
 
 search_url = "https://www.google.com/search"
 
@@ -61,7 +65,7 @@ def get_url_nofollow(url):
 		response = urlopen(url)
 		code = response.getcode()
 		return code
-	except urllib.error.HTTPError as e:
+	except HTTPError as e:
 		return e.code
 	except:
 		return 0
