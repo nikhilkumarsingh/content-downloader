@@ -119,6 +119,23 @@ Optional arguments are:
   $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"
   ```
 
+### GUI using appJar
+
+* Install appJar
+
+    ```
+    pip install appjar
+    ```
+
+* Start GUI
+
+    ```
+    python examples/gui.py
+    ```
+
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_initial.png)
+
+
 ## Flask server API with Query Parameters usage
 
 * Install Flask dependency:
