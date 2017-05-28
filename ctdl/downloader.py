@@ -7,6 +7,7 @@ from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm, trange
 import settings
+import utils
 
 chunk_size = 1024
 main_iter = None
@@ -73,8 +74,21 @@ def open_download_folder():
     """
     if sys.platform == "darwin":
         # macOS
+
+        # Cater for when run gui.py file directly in debugger within the examples directory
         download_directory_full = sys.path[0]+'/'+settings.download_directory
+
+        if not os.path.isdir(download_directory_full):
+            # Cater for when run gui.py file from project root directory with `python examples/gui.py`
+            def get_main_path():
+                test_path = sys.path[0] # sys.path[0] is current path in 'examples' subdirectory
+                split_on_char = "/"
+                return split_on_char.join(test_path.split(split_on_char)[:-1])
+            main_path = get_main_path()
+            download_directory_full = main_path+"/"+settings.download_directory
+
         subprocess.Popen(['open', download_directory_full])
+
         # TODO - implement for linux and windows
         # elif platform == "linux" or platform == "linux2":
         # elif platform == "win32":
