@@ -9,8 +9,8 @@ except ImportError:
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
-from .downloader import download_series, download_parallel
-from .utils import DEFAULT_ARGS, FILE_EXTENSIONS, THREAT_EXTENSIONS
+from downloader import download_series, download_parallel
+from utils import DEFAULT_ARGS, FILE_EXTENSIONS, THREAT_EXTENSIONS
 
 search_url = "https://www.google.com/search"
 
