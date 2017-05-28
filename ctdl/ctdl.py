@@ -140,9 +140,9 @@ def download_content(**args):
 	"""
 	main function to fetch links and download them
 	"""
-    args['query'] = args['query'].replace(',', ' ')
-    if not args['directory']:
-        args['directory'] = args['query'].replace(' ', '-')
+	args['query'] = args['query'].replace(',', ' ')
+	if not args['directory']:
+		args['directory'] = args['query'].replace(' ', '-')
 
 	print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
 		.format(args['limit'], args['file_type'], args['query'], args['directory']))
@@ -170,20 +170,20 @@ def main(query_params={}, **args):
 	parser = argparse.ArgumentParser(description = "Content Downloader",
 									 epilog="Now download files on any topic in bulk!")
 
-    # defining arguments for parser object
-    parser.add_argument("query", type = str, default = DEFAULT_ARGS['query'], nargs = '?',
+	# defining arguments for parser object
+	parser.add_argument("query", type = str, default = DEFAULT_ARGS['query'], nargs = '?',
     					help = "Specify the query.")
 
-    parser.add_argument("-f", "--file_type", type = str, default = DEFAULT_ARGS['file_type'],
+	parser.add_argument("-f", "--file_type", type = str, default = DEFAULT_ARGS['file_type'],
                         help = "Specify the extension of files to download.")
      
-    parser.add_argument("-l", "--limit", type = int, default = DEFAULT_ARGS['limit'],
+	parser.add_argument("-l", "--limit", type = int, default = DEFAULT_ARGS['limit'],
                         help = "Limit the number of search results (in multiples of 10).")
      
-    parser.add_argument("-d", "--directory", type = str, default = DEFAULT_ARGS['directory'],
+	parser.add_argument("-d", "--directory", type = str, default = DEFAULT_ARGS['directory'],
                         help = "Specify directory where files will be stored.")
 
-    parser.add_argument("-p", "--parallel", action = 'store_true', default = DEFAULT_ARGS['parallel'],
+	parser.add_argument("-p", "--parallel", action = 'store_true', default = DEFAULT_ARGS['parallel'],
                         help = "For parallel downloading.")
 
 	parser.add_argument("-a", "--available", action='store_true',
@@ -201,52 +201,52 @@ def main(query_params={}, **args):
 	parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = DEFAULT_ARGS['no_redirects'],
 						help = "Prevent download redirects.")
 
-    parser.add_argument("-minfs", "--min-file-size", type = int, default = DEFAULT_ARGS['min_file_size'],
+	parser.add_argument("-minfs", "--min-file-size", type = int, default = DEFAULT_ARGS['min_file_size'],
                         help = "Specify minimum file size to download in Kilobytes (KB).")
 
-    parser.add_argument("-maxfs", "--max-file-size", type = int, default = DEFAULT_ARGS['max_file_size'],
+	parser.add_argument("-maxfs", "--max-file-size", type = int, default = DEFAULT_ARGS['max_file_size'],
                         help = "Specify maximum file size to download in Kilobytes (KB).")
 
-    parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = DEFAULT_ARGS['no_redirects'],
+	parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = DEFAULT_ARGS['no_redirects'],
                         help = "Prevent download redirects.")
 
 	args = parser.parse_args()
 	args_dict = vars(args)
 
-    print("\n\nCTDL received Flask API endpoint Query Parameters: ", query_params, file=sys.stderr)
-    print("CTDL using CLI Arguments: ", args_dict, file=sys.stderr)
-    print("\n\n")
+	print("\n\nCTDL received Flask API endpoint Query Parameters: ", query_params, file=sys.stderr)
+	print("CTDL using CLI Arguments: ", args_dict, file=sys.stderr)
+	print("\n\n")
 
-    mapped_query_params = {}
-    if len(query_params):
-        def add_missing_keys_with_defaults(query_params):
-            """
+	mapped_query_params = {}
+	if len(query_params):
+		def add_missing_keys_with_defaults(query_params):
+			"""
             Add defaults where not provided in Query Parameters
             """
-            for key, val in DEFAULT_ARGS.items():
-                if not key in query_params:
-                    query_params[key] = val
-            return query_params
+			for key, val in DEFAULT_ARGS.items():
+				if not key in query_params:
+					query_params[key] = val
+			return query_params
 
-        def map_query_params(query_params):
-            """
-            Convert Query Parameter values to correct type
-            """
-            mapped_query_params = {}
-            for key, val in query_params.items():
-                if val == 'None':
-                    mapped_query_params[key] = None
-                elif val == 'True':
-                    mapped_query_params[key] = True
-                elif val == 'False':
-                    mapped_query_params[key] = False
-                elif key in ['limit', 'min_file_size', 'max_file_size']:
-                    mapped_query_params[key] = int(val)
-                else:
-                    mapped_query_params[key] = val
-            return mapped_query_params
-        query_params_all_required_keys = add_missing_keys_with_defaults(query_params)
-        mapped_query_params = map_query_params(query_params_all_required_keys)
+		def map_query_params(query_params):
+			"""
+			Convert Query Parameter values to correct type
+			"""
+			mapped_query_params = {}
+			for key, val in query_params.items():
+				if val == 'None':
+					mapped_query_params[key] = None
+				elif val == 'True':
+					mapped_query_params[key] = True
+				elif val == 'False':
+					mapped_query_params[key] = False
+				elif key in ['limit', 'min_file_size', 'max_file_size']:
+					mapped_query_params[key] = int(val)
+				else:
+					mapped_query_params[key] = val
+			return mapped_query_params
+		query_params_all_required_keys = add_missing_keys_with_defaults(query_params)
+		mapped_query_params = map_query_params(query_params_all_required_keys)
 
 	if args.available or (mapped_query_params and mapped_query_params['available']):
 		show_filetypes(FILE_EXTENSIONS)
@@ -256,10 +256,10 @@ def main(query_params={}, **args):
 		show_filetypes(THREAT_EXTENSIONS)
 		return
 
-    if len(mapped_query_params):
-        high_threat = check_threats(**mapped_query_params)
-    else:
-        high_threat = check_threats(**args_dict)
+	if len(mapped_query_params):
+		high_threat = check_threats(**mapped_query_params)
+	else:
+		high_threat = check_threats(**args_dict)
 
 	if high_threat:
 		def prompt(message, errormessage, isvalid, isexit):
@@ -279,14 +279,14 @@ def main(query_params={}, **args):
 			isexit = lambda x:True if x is 'n' else None
 		)
 
-    if len(query_params):
-        print("Processing CTDL with received Flask API endpoint Query Parameters: ", mapped_query_params, file=sys.stderr)
-        validate_args(**mapped_query_params)
-        download_content(**mapped_query_params)
-    else:
-        print("Processing CTDL with CLI Arguments: ", args_dict, file=sys.stderr)
-        validate_args(**args_dict)
-        download_content(**args_dict)
+	if len(query_params):
+		print("Processing CTDL with received Flask API endpoint Query Parameters: ", mapped_query_params, file=sys.stderr)
+		validate_args(**mapped_query_params)
+		download_content(**mapped_query_params)
+	else:
+		print("Processing CTDL with CLI Arguments: ", args_dict, file=sys.stderr)
+		validate_args(**args_dict)
+		download_content(**args_dict)
 
 if __name__ == "__main__":
 	main()
