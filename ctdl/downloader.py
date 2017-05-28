@@ -1,9 +1,12 @@
 import os
+import sys
+import subprocess
 import threading
 import requests
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm, trange
+import settings
 
 chunk_size = 1024
 main_iter = None
@@ -31,7 +34,7 @@ def download(url, directory, min_file_size = 0, max_file_size = -1,
     resp = s.get(url, stream = True, allow_redirects = is_redirects)
 
     if not resp.status_code == 200:
-    	# ignore this file since server returns invalid response
+        # ignore this file since server returns invalid response
         return
 
     try:
@@ -57,12 +60,35 @@ def download(url, directory, min_file_size = 0, max_file_size = -1,
         for data in tqdm_iter:
             f.write(data)
 
+    settings.urls_processed += 1
+    settings.urls_percent_complete = (settings.urls_processed / settings.urls_total_count) * 100
+
     if mode == 'p':
         main_iter.update(1)
 
 
+def open_download_folder():
+    """
+    Open in a macOS Finder window the directory containing downloaded files
+    """
+    if sys.platform == "darwin":
+        # macOS
+        download_directory_full = sys.path[0]+'/'+settings.download_directory
+        subprocess.Popen(['open', download_directory_full])
+        # TODO - implement for linux and windows
+        # elif platform == "linux" or platform == "linux2":
+        # elif platform == "win32":
+
+
 def download_parallel(urls, directory, min_file_size, max_file_size, no_redirects):
     global main_iter
+
+    # Initialise globals including appJar GUI progress bar
+    # Important: Required otherwise lose context when debugging.
+    settings.urls_total_count = len(urls)
+    settings.urls_processed = 0
+    settings.urls_percent_complete = 1
+    settings.download_directory = directory
 
     # create directory to save files
     if not os.path.exists(directory):
@@ -100,10 +126,19 @@ def download_parallel(urls, directory, min_file_size, max_file_size, no_redirect
 
     main_iter.close()
 
+    settings.urls_percent_complete = 100
     print("\n\nDownload complete.")
+    open_download_folder()
 
 
 def download_series(urls, directory, min_file_size, max_file_size, no_redirects):
+
+    # Initialise globals including appJar GUI progress bar.
+    # Important: Required otherwise lose context when debugging.
+    settings.urls_total_count = len(urls)
+    settings.urls_processed = 0
+    settings.urls_percent_complete = 1
+    settings.download_directory = directory
 
     # create directory to save files
     if not os.path.exists(directory):
@@ -113,4 +148,6 @@ def download_series(urls, directory, min_file_size, max_file_size, no_redirects)
     for url in urls:
         download(url, directory, min_file_size, max_file_size, no_redirects)
 
+    settings.urls_percent_complete = 100
     print("Download complete.")
+    open_download_folder()

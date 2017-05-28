@@ -12,33 +12,46 @@ DEFAULT_ARGS = {
 }
 
 FILE_EXTENSIONS = {
-    'Adobe Flash':'swf',
-    'Adobe Portable Document Format':'pdf',
-    'Adobe PostScript':'ps',
-    'Autodesk Design Web Format': 'dwf',
-    'Google Earth': 'kml',
-    'XML': 'xml',
-    'Microsoft PowerPoint': 'ppt',
-    'Microsoft Excel': 'xls',
-    'Microsoft Word': 'doc',
-    'GPS eXchange Format': 'gpx',
-    'Hancom Hanword': 'hwp',
-    'HTML': 'html',
-    'OpenOffice presentation': 'odp',
-    'OpenOffice spreadsheet': 'ods',
-    'OpenOffice text': 'odt',
-    'Rich Text Format': 'rtf',
-    'Scalable Vector Graphics': 'svg',
-    'TeX/LaTeX': 'tex',
-    'Text': 'txt',
-    'Basic source code': 'bas',
-    'C source code': 'c',
-    'C++ source code': 'cpp',
-    'C# source code': 'cs',
-    'Java source code': 'java',
-    'Perl source code': 'pl',
-    'Python source code': 'py',
-    'Wireless Markup Languag': 'wml'
+    'text': {
+        'Adobe Portable Document Format':'pdf',
+        'Microsoft PowerPoint': 'ppt',
+        'Microsoft Excel': 'xls',
+        'Microsoft Word': 'doc',
+        'OpenOffice presentation': 'odp',
+        'OpenOffice spreadsheet': 'ods',
+        'OpenOffice text': 'odt',
+        'Rich Text Format': 'rtf',
+        'Adobe PostScript':'ps',
+        'Hancom Hanword': 'hwp',
+        'TeX/LaTeX': 'tex',
+        'Text': 'txt',
+    },
+    'media': {
+        'Adobe Flash':'swf',
+        'Scalable Vector Graphics': 'svg',
+    },
+    'cad': {
+        'Autodesk Design Web Format': 'dwf',
+    },
+    'data': {
+        'Google Earth': 'kml',
+        'XML': 'xml',
+        'GPS eXchange Format': 'gpx',
+        'Wireless Markup Language': 'wml'
+    },
+    'code': {
+        'HTML': 'html',
+        'Basic source code': 'bas',
+        'C source code': 'c',
+        'C++ source code': 'cpp',
+        'C# source code': 'cs',
+        'Java source code': 'java',
+        'Perl source code': 'pl',
+        'Python source code': 'py',
+        'Ruby source code': 'rb',
+        'Rust source code': 'rs',
+        'JavaScript source code': 'js'
+    }
 }
 
 THREAT_EXTENSIONS = {

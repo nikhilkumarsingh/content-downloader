@@ -21,9 +21,13 @@ Python package with **command line utility** to download files on any topic in b
 
   ```
   $ pip install ctdl
+  $ pip install -U .
   ```
 
 ## Important Notes
+
+- If you get error `ModuleNotFoundError: No module named ___` then
+run all commands with `python ctdl/ctdl.py ___` instead of `ctdl ___`
 
 - There seem to be some issues with parallel progress bars in tqdm which have
   been resolved in this [pull](https://github.com/tqdm/tqdm/pull/385). Until this pull is merged, please use my patch by running this command:
@@ -119,9 +123,9 @@ Optional arguments are:
   $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"
   ```
 
-### GUI using appJar
+### GUI - using appJar
 
-* Install appJar
+* Install appJar. See [appJar Widgets for info](http://appjar.info/pythonWidgets/)
 
     ```
     pip install appjar
@@ -133,8 +137,9 @@ Optional arguments are:
     python examples/gui.py
     ```
 
-    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_initial.png)
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_updated.png)
 
+* Automatically opens in a Finder window the directory containing the downloaded files when download completes
 
 ## Flask server API with Query Parameters usage
 
@@ -192,8 +197,11 @@ ctdl.download_content(query, filetype, directory, limit)
 - [X] Prompt user before downloading potentially threatful files
 - [X] Example Flask server API implementation with query parameters
 - [ ] Implement unit testing
-- [ ] Create ctdl GUI
+- [X] Create ctdl GUI (using appJar)
 - [ ] Use DuckDuckgo API as an option
+- [X] macOS - Automatically open directory where files were downloaded when download completes
+- [ ] Windows - Automatically open directory where files were downloaded when download completes
+- [ ] Linux - Automatically open directory where files were downloaded when download completes
 
 ## Want to contribute?
 
