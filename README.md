@@ -155,7 +155,7 @@ Optional arguments are:
     python examples/server.py
     ```
 
-    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/flask_server_running.png)
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/flask_server_running_fixed.png)
 
 * Open another Terminal Window No. 2 and run cURL passing Query Parameters:
 
@@ -177,7 +177,7 @@ Optional arguments are:
 * Go back to Terminal Window No. 1 to see the Flask server process your downloads and
 and saves them in new folder 'dogs-cats' (which is named based on the query parameters)
 
-    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/flask_server_running_and_processes_curl_request.png)
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/flask_server_running_and_processes_curl_request_fixed.png)
 
 ## Usage in Python files
 
