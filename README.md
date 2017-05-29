@@ -210,6 +210,10 @@ ctdl.download_content(query, filetype, directory, limit)
 - [X] macOS - Automatically open directory where files were downloaded when download completes
 - [ ] Windows - Automatically open directory where files were downloaded when download completes
 - [ ] Linux - Automatically open directory where files were downloaded when download completes
+- [X] Internationalisation - English, Hindi, Deutsch, Espanol, Mandarin
+- [X] Colour themes
+- [X] Accessibility with full screen mode
+- [X] Downloaded files saved in subdirectories of a 'downloads' directory that is generated at project root level
 
 ## Want to contribute?
 
