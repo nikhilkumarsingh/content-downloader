@@ -139,11 +139,15 @@ Optional arguments are:
 
     ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_updated.png)
 
-    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_theme1.png)
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_theme2.png)
 
     ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_theme1_full_screen.png)
 
 * Automatically opens in a Finder window the directory containing the downloaded files when download completes
+
+* Internationalisation supported (currently includes English, Hindi, Deutsch, Espanol, Mandarin
+
+* Colour themes supported
 
 ## Flask server API with Query Parameters usage
 

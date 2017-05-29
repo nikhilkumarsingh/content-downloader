@@ -97,7 +97,7 @@ app.setTitle("Content Search")
 app.setTransparency(100)
 app.setFont(12, "Arial bold")
 app.setBg("#FFFFFF")
-app.setGeometry(400, 357)
+app.setGeometry(400, 400)
 app.setResizable(canResize=True)
 # app.setLocation(0, 0)
 app.setGuiPadding(10, 10)
@@ -119,7 +119,7 @@ def change_window_size(arg):
         is_full_screen = True
     else:
         app.setFont(12)
-        app.setGeometry(400, 357)
+        app.setGeometry(400, 400)
         app.setButton("Full Screen", "Full Screen")
         is_full_screen = False
 
