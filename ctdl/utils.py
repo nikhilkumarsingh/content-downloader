@@ -13,7 +13,7 @@ DEFAULT_ARGS = {
 
 FILE_EXTENSIONS = {
     'text': {
-        'Adobe Portable Document Format':'pdf',
+        'Adobe Portable Document Format': 'pdf',
         'Microsoft PowerPoint': 'ppt',
         'Microsoft Excel': 'xls',
         'Microsoft Word': 'doc',
@@ -21,7 +21,7 @@ FILE_EXTENSIONS = {
         'OpenOffice spreadsheet': 'ods',
         'OpenOffice text': 'odt',
         'Rich Text Format': 'rtf',
-        'Adobe PostScript':'ps',
+        'Adobe PostScript': 'ps',
         'Hancom Hanword': 'hwp',
         'TeX/LaTeX': 'tex',
         'Text': 'txt',
