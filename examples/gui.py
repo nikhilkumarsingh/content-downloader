@@ -97,7 +97,7 @@ app.setTitle("Content Search")
 app.setTransparency(100)
 app.setFont(12, "Arial bold")
 app.setBg("#FFFFFF")
-app.setGeometry(318, 357)
+app.setGeometry(400, 357)
 app.setResizable(canResize=True)
 # app.setLocation(0, 0)
 app.setGuiPadding(10, 10)
@@ -119,7 +119,7 @@ def change_window_size(arg):
         is_full_screen = True
     else:
         app.setFont(12)
-        app.setGeometry(318, 357)
+        app.setGeometry(400, 357)
         app.setButton("Full Screen", "Full Screen")
         is_full_screen = False
 
@@ -155,10 +155,10 @@ app.addLabel("directoryLab", "Download Directory Name:", 4, 0)
 app.addEntry("directoryEnt", 4, 1)
 app.addLabel("parallelLab", "Parallel Downloading:", 5, 0)
 app.addCheckBox("parallel-downloading", 5, 1)
-app.addLabel("minFileSizeLab", "Min File Size:", 6, 0)
+app.addLabel("minFileSizeLab", "Minimum File Size:", 6, 0)
 app.addEntry("minFileSizeEnt", 6, 1)
 app.setEntryDefault("minFileSizeEnt", DEFAULT_ARGS["min_file_size"])
-app.addLabel("maxFileSizeLab", "Max File Size:", 7, 0)
+app.addLabel("maxFileSizeLab", "Maximum File Size:", 7, 0)
 app.addEntry("maxFileSizeEnt", 7, 1)
 app.setEntryDefault("maxFileSizeEnt", "unlimited")
 app.addLabel("redirectsLab", "URL Redirects:", 8, 0)
@@ -169,6 +169,7 @@ app.setButtonImage("Search", sys.path[0] + "/images/search_button.gif")
 app.setButtonImage("Cancel", sys.path[0] + "/images/cancel_button.gif")
 app.addButton("Full Screen", change_window_size, 11, 0)
 app.addButton("Switch Theme", change_theme, 11, 1)
+app.addButtons(["English", "Hindi", "Deutsch", "Espanol", "Mandarin"], app.changeLanguage, colspan=5)
 app.addWebLink("Suggestions or issues?", "https://github.com/nikhilkumarsingh/content-downloader/issues", colspan=2)
 app.addMeter("progress", colspan=2)
 app.setMeterFill("progress", "blue")
@@ -184,4 +185,5 @@ app.setFocus("queryEnt")
 app.enableEnter(processContentSearch)
 
 # start the GUI
-app.go()
+# internationalisation http://appjar.info/pythonInternationalisation/#internationalisation
+app.go("english") # starting internationalisation language
