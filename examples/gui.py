@@ -1,5 +1,6 @@
 from appJar import gui
 import sys
+import random
 
 import site
 
@@ -95,11 +96,18 @@ app.setTitle("Content Search")
 # import sys; app.setBgImage(sys.path[0] + "/images/bg.gif")
 app.setTransparency(100)
 app.setFont(12, "Arial bold")
-app.setBg("#9CFF00")
+app.setBg("#FFFFFF")
 app.setGeometry(318, 357)
 app.setResizable(canResize=True)
 # app.setLocation(0, 0)
 app.setGuiPadding(10, 10)
+
+def gen_hex_colour_code():
+    return ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+
+def change_theme(arg):
+    hex_code = gen_hex_colour_code()
+    app.setBg("#" + hex_code)
 
 is_full_screen = False
 def change_window_size(arg):
@@ -156,13 +164,12 @@ app.setEntryDefault("maxFileSizeEnt", "unlimited")
 app.addLabel("redirectsLab", "URL Redirects:", 8, 0)
 app.addCheckBox("toggle-redirects", 8, 1)
 app.addHorizontalSeparator(9, 0, 2, colour="red")
-app.addWebLink("Suggestions or issues?", "https://github.com/nikhilkumarsingh/content-downloader/issues", colspan=2)
-app.addButton("Full Screen", change_window_size, colspan=2)
-# changed this line to call a function
 app.addButtons( ["Search", "Cancel"], processContentSearch, colspan=2)
 app.setButtonImage("Search", sys.path[0] + "/images/search_button.gif")
 app.setButtonImage("Cancel", sys.path[0] + "/images/cancel_button.gif")
-
+app.addButton("Full Screen", change_window_size, 11, 0)
+app.addButton("Switch Theme", change_theme, 11, 1)
+app.addWebLink("Suggestions or issues?", "https://github.com/nikhilkumarsingh/content-downloader/issues", colspan=2)
 app.addMeter("progress", colspan=2)
 app.setMeterFill("progress", "blue")
 

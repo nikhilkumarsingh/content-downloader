@@ -139,6 +139,10 @@ Optional arguments are:
 
     ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_updated.png)
 
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_theme1.png)
+
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_theme1_full_screen.png)
+
 * Automatically opens in a Finder window the directory containing the downloaded files when download completes
 
 ## Flask server API with Query Parameters usage
