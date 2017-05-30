@@ -65,12 +65,12 @@ def processContentSearch(btnName):
             query_params['directory'] = app.getEntry("queryEnt").replace(' ', '-')
         else:
             query_params["directory"] = app.getEntry("directoryEnt")
-        query_params["parallel"] = app.getCheckBox("parallel-downloading")
+        query_params["parallel"] = app.getCheckBox("Parallel Downloading")
         query_params["available"] = DEFAULT_ARGS["available"]
         query_params["threats"] = DEFAULT_ARGS["threats"]
         query_params["min_file_size"] = int(app.getEntry("minFileSizeEnt")) if app.getEntry("minFileSizeEnt") != "" else DEFAULT_ARGS["min_file_size"]
         query_params["max_file_size"] = int(app.getEntry("maxFileSizeEnt")) if app.getEntry("maxFileSizeEnt") != "" else DEFAULT_ARGS["max_file_size"]
-        query_params["no_redirects"] = app.getCheckBox("toggle-redirects")
+        query_params["no_redirects"] = app.getCheckBox("URL Redirects")
 
         app.setFont(12)
         message = """Downloaded {0} {1} files on topic {2} and saving to directory: {3}.
@@ -123,10 +123,19 @@ def change_window_size(arg):
         app.setButton("Full Screen", "Full Screen")
         is_full_screen = False
 
+def queryChanged(btn):
+    current_query = app.getEntry("queryEnt")
+    if current_query != "":
+        current_query_formatted = current_query.replace(' ', '-')
+        app.setEntry("directoryEnt", current_query_formatted, callFunction=False)
+    else:
+        app.setEntry("directoryEnt", "", callFunction=False)
+
 # add labels and entries in correct row & column
 app.addFlashLabel("queryLab", "Search Query:", 0, 0)
 app.addEntry("queryEnt", 0, 1)
-app.setEntryDefault("queryEnt", "i.e. python algorithms")
+# event of input field changing calls specified function
+app.setEntryChangeFunction("queryEnt", queryChanged)
 app.addLabel("fileTypeLab", "File Type:", 1, 0)
 
 def get_labelled_options():
@@ -153,16 +162,13 @@ app.addEntry("limitEnt", 3, 1)
 app.setEntryDefault("limitEnt", DEFAULT_ARGS["limit"])
 app.addLabel("directoryLab", "Download Directory Name:", 4, 0)
 app.addEntry("directoryEnt", 4, 1)
-app.addLabel("parallelLab", "Parallel Downloading:", 5, 0)
-app.addCheckBox("parallel-downloading", 5, 1)
+app.addCheckBox("Parallel Downloading", 5, 1)
 app.addLabel("minFileSizeLab", "Minimum File Size:", 6, 0)
 app.addEntry("minFileSizeEnt", 6, 1)
 app.setEntryDefault("minFileSizeEnt", DEFAULT_ARGS["min_file_size"])
 app.addLabel("maxFileSizeLab", "Maximum File Size:", 7, 0)
 app.addEntry("maxFileSizeEnt", 7, 1)
-app.setEntryDefault("maxFileSizeEnt", "unlimited")
-app.addLabel("redirectsLab", "URL Redirects:", 8, 0)
-app.addCheckBox("toggle-redirects", 8, 1)
+app.addCheckBox("URL Redirects", 8, 1)
 app.addHorizontalSeparator(9, 0, 2, colour="red")
 app.addButtons( ["Search", "Cancel"], processContentSearch, colspan=2)
 app.setButtonImage("Search", sys.path[0] + "/images/search_button.gif")

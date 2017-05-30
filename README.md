@@ -128,7 +128,8 @@ Optional arguments are:
 * Install appJar. See [appJar Widgets for info](http://appjar.info/pythonWidgets/)
 
     ```
-    pip install appjar pyyaml
+    pip install appjar==v0.61
+    pip install pyyaml
     ```
 
 * Start GUI
@@ -137,11 +138,9 @@ Optional arguments are:
     python examples/gui.py
     ```
 
-    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_updated.png)
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_theme3.png)
 
-    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_theme2.png)
-
-    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_theme1_full_screen.png)
+    ![alt tag](https://raw.githubusercontent.com/ltfschoen/content-downloader/master/screenshots/gui_appjar_theme3_full_screen.png)
 
 * Automatically opens in a Finder window the directory containing the downloaded files when download completes
 
@@ -214,6 +213,7 @@ ctdl.download_content(query, filetype, directory, limit)
 - [X] Colour themes
 - [X] Accessibility with full screen mode
 - [X] Downloaded files saved in subdirectories of a 'downloads' directory that is generated at project root level
+- [X] Automatically populates directory input field with specific download directory to be generated based on query
 
 ## Want to contribute?
 
