@@ -12,131 +12,31 @@ from tqdm import tqdm, trange
 
 import tkinter as tk
 
-
+from gui_download import *
 from ctdl import *
+
+def download_content_gui(**args):
+    """
+    main function to fetch links and download them
+    """
+    if not args['directory']:
+        args['directory'] = args['query'].replace(' ', '-')
+
+    print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
+        .format(args['limit'], args['file_type'], args['query'], args['directory']))
+
+    links = search(args['query'], args['file_type'], args['limit'])
+
+    if args['parallel']:
+        download_parallel_gui(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
+    else:
+        download_series_gui(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
+
+
 
 fields = 'Search query', 'Min Allowed File Size', 'Max Allowed File Size', 'Download Directory','Limit'
 args={'parallel': False, 'file_type': 'pdf', 'threats': False, 'no_redirects': False, 'available': False, 'query': 'python',
      'min_file_size': 0, 'max_file_size': -1, 'directory': None, 'limit': 10}
-
-
-
-# chunk_size = 1024
-# main_iter = None
-# yellow_color = "\033[93m"
-# blue_color = "\033[94m"
-
-# # modes -> s: series | p: parallel
-
-# s = requests.Session()
-# # Max retries and back-off strategy so all requests to http:// sleep before retrying
-# retries = Retry(total = 5,
-#                 backoff_factor = 0.1,
-#                 status_forcelist = [ 500, 502, 503, 504 ])
-# s.mount('http://', HTTPAdapter(max_retries = retries))
-
-
-
-# def download(url, directory, min_file_size = 0, max_file_size = -1, 
-#              no_redirects = False, pos = 0, mode = 's'):
-#     global main_it
-
-#     file_name = url.split('/')[-1]
-#     file_address = directory + '/' + file_name
-#     is_redirects = not no_redirects
-
-#     resp = s.get(url, stream = True, allow_redirects = is_redirects)
-
-#     if not resp.status_code == 200:
-#         # ignore this file since server returns invalid response
-#         return
-
-#     try:
-#         total_size = int(resp.headers['content-length'])
-#     except KeyError:
-#         total_size = len(resp.content)
-
-#     total_chunks = total_size/chunk_size
-#     print(total_size)
-
-#     if total_chunks < min_file_size: 
-#         # ignore this file since file size is lesser than min_file_size
-#         return
-#     elif max_file_size != -1 and total_chunks > max_file_size:
-#         # ignore this file since file size is greater than max_file_size
-#         return
-
-#     file_iterable = resp.iter_content(chunk_size = chunk_size)
-
-#     tqdm_iter = tqdm(iterable = file_iterable, total = total_chunks, 
-#             unit = 'KB', position = pos, desc =  file_name, leave = False)
-
-#     with open(file_address, 'wb') as f:
-#         for data in tqdm_iter:
-#             f.write(data)
-
-#     if mode == 'p':
-#         main_iter.update(1)
-
-
-# def download_parallel(urls, directory, min_file_size, max_file_size, no_redirects):
-#     global main_iter
-
-#     # create directory to save files
-#     if not os.path.exists(directory):
-#         os.makedirs(directory)
-
-#     # overall progress bar
-#     main_iter = trange(len(urls), position = 1, desc = yellow_color + "Overall")
-
-#     # empty list to store threads
-#     threads = []
-
-#     # creating threads
-#     for idx, url in enumerate(urls):
-#         t = threading.Thread(
-#             target = download,
-#             kwargs = {
-#                 'url': url,
-#                 'directory': directory,
-#                 'pos': 2*idx+3,
-#                 'mode': 'p',
-#                 'min_file_size': min_file_size,
-#                 'max_file_size': max_file_size,
-#                 'no_redirects': no_redirects
-#             }
-#         )
-#         threads.append(t)
-
-#     # start all threads
-#     for t in threads:
-#         t.start()
-
-#     # wait until all threads terminate
-#     for t in threads[::-1]:
-#         t.join()
-
-#     main_iter.close()
-
-#     print("\n\nDownload complete.")
-
-
-# def download_series(urls, directory, min_file_size, max_file_size, no_redirects):
-
-#     # create directory to save files
-#     if not os.path.exists(directory):
-#         os.makedirs(directory)
-
-#     # download files one by one
-#     for url in urls:
-#         download(url, directory, min_file_size, max_file_size, no_redirects)
-
-#     print("Download complete.")
-
-
-
-
-
 
 
 
@@ -252,7 +152,7 @@ class makeform:
         args['limit']=int(self.entry_limit.get())
         print(args)
         self.check_threat()
-        download_content(**args)
+        download_content_gui(**args)
 
 
     def on_entry_click(self,event):
@@ -294,31 +194,31 @@ class makeform:
 
 
 
-class SampleApp(Tk):
+# class SampleApp(Tk):
 
-    def __init__(self):
-        Tk.__init__(self)
-        self.button = Button(self,text="start", command=self.start)
-        self.button.pack(fill=X)
-        self.progress = ttk.Progressbar(self, orient="horizontal",
-                                        length=300, mode="determinate")
-        self.progress.pack()
-        self.bytes = 0
-        self.maxbytes = 0
+#     def __init__(self):
+#         Tk.__init__(self)
+#         self.button = Button(self,text="start", command=self.start)
+#         self.button.pack(fill=X)
+#         self.progress = ttk.Progressbar(self, orient="horizontal",
+#                                         length=300, mode="determinate")
+#         self.progress.pack()
+#         self.bytes = 0
+#         self.maxbytes = 0
 
-    def start(self):
-        self.progress["value"] = 0
-        self.maxbytes = 50000
-        self.progress["maximum"] = 50000
-        self.read_bytes()
+#     def start(self):
+#         self.progress["value"] = 0
+#         self.maxbytes = 50000
+#         self.progress["maximum"] = 50000
+#         self.read_bytes()
 
-    def read_bytes(self):
-        '''simulate reading 500 bytes; update progress bar'''
-        self.bytes += 500
-        self.progress["value"] = self.bytes
-        if self.bytes < self.maxbytes:
-            # read more bytes after 100 ms
-            self.after(100, self.read_bytes)
+#     def read_bytes(self):
+#         '''simulate reading 500 bytes; update progress bar'''
+#         self.bytes += 500
+#         self.progress["value"] = self.bytes
+#         if self.bytes < self.maxbytes:
+#             # read more bytes after 100 ms
+#             self.after(100, self.read_bytes)
 
 
 def main():
