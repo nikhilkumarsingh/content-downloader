@@ -30,7 +30,6 @@ def download_content_gui(**args):
 
     links = search(args['query'], args['file_type'], args['limit'])
 
-    row =Frame(root)
 
     if args['parallel']:
         download_parallel_gui(root,links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
@@ -231,7 +230,8 @@ def main():
 
     # app = SampleApp()
 
-
+    s=ttk.Style()
+    s.theme_use('clam')
     ents = makeform(root)
 
 

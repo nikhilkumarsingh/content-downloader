@@ -9,17 +9,17 @@ from tkinter import ttk
 
 from tkinter import *
 
-file_name= ""
+parallel=False
+
+file_name= []
 chunk_size = 1024
-total_chunks =0
+total_chunks =[]
 main_iter = None
 yellow_color = "\033[93m"
 blue_color = "\033[94m"
 # modes -> s: series | p: parallel
-queueLock = threading.Lock()
-queueLock2 = threading.Lock()
 
-i_max=0
+i_max=[]
 
 s = requests.Session()
 # Max retries and back-off strategy so all requests to http:// sleep before retrying
@@ -29,14 +29,16 @@ retries = Retry(total = 5,
 s.mount('http://', HTTPAdapter(max_retries = retries))
 
 
-def download(urls, directory,min_file_size = 0, max_file_size = -1, 
+def download(urls, directory,idx,min_file_size = 0, max_file_size = -1, 
              no_redirects = False, pos = 0, mode = 's'):
     global main_it
     global total_chunks
     global file_name
+
+    # loop in single thread to serialize downloads
     for url in urls:
-        file_name = url.split('/')[-1]
-        file_address = directory + '/' + file_name
+        file_name [idx]= url.split('/')[-1] 
+        file_address = directory + '/' + file_name[idx]
         is_redirects = not no_redirects
 
         resp = s.get(url, stream = True, allow_redirects = is_redirects)
@@ -51,38 +53,83 @@ def download(urls, directory,min_file_size = 0, max_file_size = -1,
             total_size = len(resp.content)
 
 
-        total_chunks = total_size/chunk_size
+        total_chunks[idx]=total_size/chunk_size
 
 
-        if total_chunks < min_file_size: 
+        if total_chunks[idx] < min_file_size: 
             # ignore this file since file size is lesser than min_file_size
             return
-        elif max_file_size != -1 and total_chunks > max_file_size:
+        elif max_file_size != -1 and total_chunks[idx] > max_file_size:
             # ignore this file since file size is greater than max_file_size
             return
 
         file_iterable = resp.iter_content(chunk_size = chunk_size)
 
-        tqdm_iter = tqdm(iterable = file_iterable, total = total_chunks, 
-                unit = 'KB', position = pos, desc =  file_name, leave = False)
+        # tqdm_iter = tqdm(iterable = file_iterable, total = total_chunks, 
+        #         unit = 'KB', position = pos, desc =  file_name[, leave = False)
         global i_max
 
         with open(file_address, 'wb') as f:
             i=0
-            for data in tqdm_iter:
+            for data in file_iterable:
                 i=i+1
-                i_max=i
+                i_max[idx]=i
                 f.write(data)
 
 
-        if mode == 'p':
-            main_iter.update(1)
+
+
+def download_parallel(url, directory,idx,min_file_size = 0, max_file_size = -1, 
+             no_redirects = False, pos = 0, mode = 's'):
+    global main_it
+    global total_chunks
+    global file_name
+
+    file_name [idx]= url.split('/')[-1] 
+    file_address = directory + '/' + file_name[idx]
+    is_redirects = not no_redirects
+
+    resp = s.get(url, stream = True, allow_redirects = is_redirects)
+
+    if not resp.status_code == 200:
+        # ignore this file since server returns invalid response
+        return
+
+    try:
+        total_size = int(resp.headers['content-length'])
+    except KeyError:
+        total_size = len(resp.content)
+
+
+    total_chunks[idx]=total_size/chunk_size
+
+
+    if total_chunks[idx] < min_file_size: 
+        # ignore this file since file size is lesser than min_file_size
+        return
+    elif max_file_size != -1 and total_chunks[idx] > max_file_size:
+        # ignore this file since file size is greater than max_file_size
+        return
+
+    file_iterable = resp.iter_content(chunk_size = chunk_size)
+
+    # tqdm_iter = tqdm(iterable = file_iterable, total = total_chunks, 
+    #         unit = 'KB', position = pos, desc =  file_name[, leave = False)
+    global i_max
+
+    with open(file_address, 'wb') as f:
+        i=0
+        for data in file_iterable:
+            i=i+1
+            i_max[idx]=i
+            f.write(data)
 
 
 
 class myThread (threading.Thread):
-    def __init__(self,url,directory,min_file_size,max_file_size,no_redirects ):
+    def __init__(self,url,directory,idx,min_file_size,max_file_size,no_redirects ):
         threading.Thread.__init__(self)
+        self.idx=idx
         self.url = url
         self.directory = directory
         self.min_file_size=min_file_size
@@ -91,14 +138,21 @@ class myThread (threading.Thread):
 
     def run(self):
         print ("Starting")
-        download(self.url, self.directory ,self.min_file_size, self.max_file_size, self.no_redirects )
+        if parallel:
+            # here url is single url
+            download_parallel(self.url, self.directory,self.idx ,self.min_file_size, self.max_file_size, self.no_redirects )
+        else:
+            # here url is whole list of url
+            download(self.url, self.directory,self.idx ,self.min_file_size, self.max_file_size, self.no_redirects )
+
         print ("Exiting" )
 
 
 class progress_class():
 
     def __init__(self,frame,url,directory , min_file_size,max_file_size,no_redirects):
-        # Tk.__init__(self)
+        global i_max
+        global file_name
         self.url = url
         self.directory = directory
         self.min_file_size=min_file_size
@@ -109,91 +163,73 @@ class progress_class():
 
         self.button = Button(frame,text="start", command=self.start)
         self.button.pack(fill=X)
-        self.progress = ttk.Progressbar(frame, orient="horizontal",length=300, mode="determinate")
-        self.progress.pack()
-        self.str=StringVar()
-        self.label=Label(frame,textvariable=self.str,width=40)
-        self.label.pack()
+        self.progress=[]
+        self.str=[]
+        self.label=[]
+        self.bytes=[]
+        self.maxbytes=[]
+        self.thread=[]
+        if parallel:
+            self.length=len(self.url) 
+        else:
+            self.length=1 # to serialize just makea single thread
+
+        for self.i in range(0,self.length):
+            file_name.append("")
+            i_max.append(0)
+            total_chunks.append(0)
+            self.progress.append(ttk.Progressbar(frame, orient="horizontal",length=300, mode="determinate") )
+            self.progress[self.i].pack()
+            self.str.append(StringVar() )
+            self.label.append(Label(frame,textvariable=self.str[self.i],width=40) )
+            self.label[self.i].pack()
+
+            self.bytes.append(0)
+            self.maxbytes.append(0)
 
 
-        self.bytes = 0
-        self.maxbytes = 0
 
     def start(self):
-        self.thread = myThread(self.url,self.directory , self.min_file_size, self.max_file_size, self.no_redirects )
-        self.progress["value"] = 0
-        self.bytes=0
-        self.thread.start()
+
+        for self.i in range(0,self.length) :
+            if parallel:
+                self.thread.append( myThread(self.url[self.i],self.directory,self.i , self.min_file_size, self.max_file_size, self.no_redirects ) )
+            else:
+                # if not parallel whole url list is passed
+                self.thread.append( myThread(self.url,self.directory,self.i , self.min_file_size, self.max_file_size, self.no_redirects ) )
+            self.progress[self.i]["value"] = 0
+            self.bytes[self.i]=0
+            self.thread[self.i].start()
 
         self.read_bytes()
 
-        print( "in progress start")
-        # self.thread.join()
-        print( " in progress ends")
-
 
     def read_bytes(self):
-        '''simulate reading 500 bytes; update progress bar'''
-        global i_max
-        self.bytes =i_max
-        self.maxbytes=total_chunks#_array[url_no]
-        self.progress["maximum"]=total_chunks#_array[url_no]
-        self.progress["value"]=self.bytes
-        self.str.set(file_name+"       "+ str(self.bytes)+"KB / "+str(int(self.maxbytes))+"KB")
-        # print(str(self.bytes)+"  "+str(self.maxbytes))
-        # if self.bytes < self.maxbytes:
-            # read more bytes after 1 ms
+        ''' reading bytes; update progress bar after 1 ms'''
+        for self.i in range(0,self.length) :
+            self.bytes[self.i] =i_max[self.i]
+            self.maxbytes[self.i]=total_chunks[self.i]
+            self.progress[self.i]["maximum"]=total_chunks[self.i]
+            self.progress[self.i]["value"]=self.bytes[self.i]
+            self.str[self.i].set(file_name[self.i]+"       "+ str(self.bytes[self.i])+"KB / "+str(int(self.maxbytes[self.i])  )+"KB")
+
         self.frame.after(1, self.read_bytes)
-        # else :
-        #     url_no=url_no+1
-        #     self.bytes=0
-        #     self.progress["value"] = 0
-        #     if url_no<len(total_chunks_array):
-        #         self.after(1, self.read_bytes)
 
 
 
-def download_parallel_gui(urls, directory, min_file_size, max_file_size, no_redirects):
+
+def download_parallel_gui(root,urls, directory, min_file_size, max_file_size, no_redirects):
     global main_iter
-
+    global parallel
     # create directory to save files
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    # overall progress bar
-    main_iter = trange(len(urls), position = 1, desc = yellow_color + "Overall")
+    parallel=True
+    app=progress_class(root,urls,directory, min_file_size,max_file_size,no_redirects)
 
-    # empty list to store threads
-    threads = []
-
-    # creating threads
-    for idx, url in enumerate(urls):
-        t = threading.Thread(
-            target = download,
-            kwargs = {
-                'url': url,
-                'directory': directory,
-                'pos': 2*idx+3,
-                'mode': 'p',
-                'min_file_size': min_file_size,
-                'max_file_size': max_file_size,
-                'no_redirects': no_redirects
-            }
-        )
-        threads.append(t)
-
-    # start all threads
-    for t in threads:
-        t.start()
-
-    # wait until all threads terminate
-    for t in threads[::-1]:
-        t.join()
-
-    main_iter.close()
 
     print("\n\nDownload complete.")
-
 
 def download_series_gui(frame,urls, directory, min_file_size, max_file_size, no_redirects):
 
@@ -201,29 +237,6 @@ def download_series_gui(frame,urls, directory, min_file_size, max_file_size, no_
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    # new_url=[]
-
-    # for url in urls:
-    #     is_redirects = not no_redirects
-    #     resp = s.get(url, stream = True, allow_redirects = is_redirects)
-    #     if not resp.status_code == 200:
-    #         # ignore this file since server returns invalid response
-    #         return
-    #     try:
-    #         total_size = int(resp.headers['content-length'])
-    #     except KeyError:
-    #         total_size = len(resp.content)
-    #     new_url.append(url)
-    #     total_chunks_array.append(total_size/chunk_size)
-
-    # print(total_chunks_array[0])
-    # print(total_chunks_array[1])
-
     app=progress_class(frame,urls,directory, min_file_size,max_file_size,no_redirects)
 
-    
-    # app=SampleApp()
-    # app.mainloop()
-
-    print("Download complete.")
-
+    print("\n\nDownload complete.")
