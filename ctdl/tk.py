@@ -15,6 +15,9 @@ import tkinter as tk
 from gui_download import *
 from ctdl import *
 
+root = Tk()
+
+
 def download_content_gui(**args):
     """
     main function to fetch links and download them
@@ -27,10 +30,12 @@ def download_content_gui(**args):
 
     links = search(args['query'], args['file_type'], args['limit'])
 
+    row =Frame(root)
+
     if args['parallel']:
-        download_parallel_gui(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
+        download_parallel_gui(root,links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
     else:
-        download_series_gui(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
+        download_series_gui(root,links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
 
 
 
@@ -226,7 +231,6 @@ def main():
 
     # app = SampleApp()
 
-    root = Tk()
 
     ents = makeform(root)
 
