@@ -16,9 +16,25 @@ from gui_download import *
 from ctdl import *
 
 root = Tk()
+row=Frame()
+links=[]
 
+def search_function(root1,q,f,l):
+    global links
+    links = search(q, f, l)
+    root1.destroy()
+    root1.quit()
+
+
+def task(ft):
+    ft.pack(expand=True, fill=BOTH, side=TOP)
+    pb_hD = ttk.Progressbar(ft, orient='horizontal', mode='indeterminate')
+    pb_hD.pack(expand=True, fill=BOTH, side=TOP)
+    pb_hD.start(50)
+    ft.mainloop()
 
 def download_content_gui(**args):
+    global row
     """
     main function to fetch links and download them
     """
@@ -28,15 +44,29 @@ def download_content_gui(**args):
     print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
         .format(args['limit'], args['file_type'], args['query'], args['directory']))
 
-    links = search(args['query'], args['file_type'], args['limit'])
 
+    root1 = Frame(root)
+    t1=threading.Thread(target=search_function, args=(root1,args['query'], args['file_type'], args['limit'],))
+    t1.start()
+    task(root1)  # This will block while the mainloop runs
+    t1.join()
 
+    # links = search(args['query'], args['file_type'], args['limit'])
+
+    row=Frame(root)
+    row.pack()
+    print(links)
     if args['parallel']:
-        download_parallel_gui(root,links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
+        download_parallel_gui(row,links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
     else:
-        download_series_gui(root,links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
+        download_series_gui(row,links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
 
 
+
+
+
+default_text ={'file_type': 'pdf',  'query': 'python',
+     'min_file_size': 0, 'max_file_size': -1, 'limit': 10}
 
 fields = 'Search query', 'Min Allowed File Size', 'Max Allowed File Size', 'Download Directory','Limit'
 args={'parallel': False, 'file_type': 'pdf', 'threats': False, 'no_redirects': False, 'available': False, 'query': 'python',
@@ -52,7 +82,7 @@ class makeform:
         self.entry_query = Entry(self.row0)
         self.entry_query.insert(0, 'python')
         self.entry_query.bind('<FocusIn>', self.on_entry_click)
-        self.entry_query.bind('<FocusOut>', self.on_focusout)
+        self.entry_query.bind('<FocusOut>', lambda event, a="query": self.on_focusout(event,a) )
         self.entry_query.config(fg = 'grey')
         self.row0.pack(side=TOP, fill=X, padx=5, pady=5)
         self.lab0.pack(side=LEFT)
@@ -64,7 +94,7 @@ class makeform:
         self.entry_min = Entry(self.row1)
         self.entry_min.insert(0, '0')
         self.entry_min.bind('<FocusIn>', self.on_entry_click)
-        self.entry_min.bind('<FocusOut>', self.on_focusout)
+        self.entry_min.bind('<FocusOut>', lambda event, a="min_file_size": self.on_focusout(event,a) )
         self.entry_min.config(fg = 'grey')
         self.row1.pack(side=TOP, fill=X, padx=5, pady=5)
         self.lab1.pack(side=LEFT)
@@ -76,7 +106,7 @@ class makeform:
         self.entry_max = Entry(self.row2)
         self.entry_max.insert(0, '-1')
         self.entry_max.bind('<FocusIn>', self.on_entry_click)
-        self.entry_max.bind('<FocusOut>', self.on_focusout)
+        self.entry_max.bind('<FocusOut>',lambda event, a="max_file_size": self.on_focusout(event,a) )
         self.entry_max.config(fg = 'grey')
         self.row2.pack(side=TOP, fill=X, padx=5, pady=5)
         self.lab2.pack(side=LEFT)
@@ -91,10 +121,10 @@ class makeform:
         self.lab3.pack(side=LEFT)
         self.entry_dir.pack(side=RIGHT, expand=YES, fill=X)
         self.dir_opt = options = {}
-        options['initialdir'] = 'C:\\'
+        # options['initialdir'] = 'C:\\'
         options['mustexist'] = False
         options['parent'] = root
-        options['title'] = 'This is a title'
+        options['title'] = 'Choose Directory'
 
 
         self.row4 = Frame(root)
@@ -102,9 +132,9 @@ class makeform:
         self.entry_limit = Entry(self.row4)
         self.entry_limit.insert(0, '10')
         self.entry_limit.bind('<FocusIn>', self.on_entry_click)
-        self.entry_limit.bind('<FocusOut>', self.on_focusout)
+        self.entry_limit.bind('<FocusOut>', lambda event, a="limit": self.on_focusout(event,a) )
         self.entry_limit.config(fg = 'grey')
-        self.row4.pack(side=TOP, fill=X, padx=5, pady=5)
+        self.row4.pack(side=TOP, fill=X, padx=5, pady=5)  
         self.lab4.pack(side=LEFT)
         self.entry_limit.pack(side=RIGHT, expand=YES, fill=X)
 
@@ -145,16 +175,19 @@ class makeform:
         self.row7.pack(side=TOP, fill=X, padx=5, pady=5)
         self.search_button.pack(side=LEFT)
 
+        self.clear=Button(self.row7, width=15, text="Clear/Cancel", anchor='w')
+        self.clear.bind('<Button-1>',self.clear_fun)
+        self.clear.pack(side=RIGHT)
+
 
     def click_download(self,event):
         args['parallel']=self.p.get()
-        args['filetype']=self.optionmenu.get()
+        args['file_type']=self.optionmenu.get()
         args['no_redirects']=self.t.get()
         args['query']=self.entry_query.get()
         args['min_file_size']=int(self.entry_min.get())
         args['max_file_size']=int(self.entry_max.get())
         args['limit']=int(self.entry_limit.get())
-        print(args)
         self.check_threat()
         download_content_gui(**args)
 
@@ -166,9 +199,9 @@ class makeform:
            event.widget.insert(0, '') #Insert blank for user input
            event.widget.config(fg = 'black')
 
-    def on_focusout(self,event):
+    def on_focusout(self,event,a):
         if event.widget.get() == '':
-            event.widget.insert(0, '')
+            event.widget.insert(0, default_text[a])
             event.widget.config(fg = 'grey')
 
     def check_threat(self):
@@ -193,36 +226,15 @@ class makeform:
         return not is_high_threat
 
     def ask_dir(self):
+        # dialogue box for choosing directory
         args['directory']=filedialog.askdirectory(**self.dir_opt) 
         self.dir_text.set(args['directory'])
 
+    def clear_fun(self,event):
+        global row
+        row.destroy()
 
 
-# class SampleApp(Tk):
-
-#     def __init__(self):
-#         Tk.__init__(self)
-#         self.button = Button(self,text="start", command=self.start)
-#         self.button.pack(fill=X)
-#         self.progress = ttk.Progressbar(self, orient="horizontal",
-#                                         length=300, mode="determinate")
-#         self.progress.pack()
-#         self.bytes = 0
-#         self.maxbytes = 0
-
-#     def start(self):
-#         self.progress["value"] = 0
-#         self.maxbytes = 50000
-#         self.progress["maximum"] = 50000
-#         self.read_bytes()
-
-#     def read_bytes(self):
-#         '''simulate reading 500 bytes; update progress bar'''
-#         self.bytes += 500
-#         self.progress["value"] = self.bytes
-#         if self.bytes < self.maxbytes:
-#             # read more bytes after 100 ms
-#             self.after(100, self.read_bytes)
 
 
 def main():
@@ -235,18 +247,9 @@ def main():
     ents = makeform(root)
 
 
-
-    # root.bind('<Return>', (lambda event, e=ents: fetch(e)))   
-    # b1 = Button(root, text='Show',
-    #       command=(lambda e=ents: fetch(e)))
-    # b1.pack(side=LEFT, padx=5, pady=5)
-    # b2 = Button(root, text='Quit', command=root.quit)
-    # b2.pack(side=LEFT, padx=5, pady=5)
     root.mainloop()
 
-    # app.mainloop()
 
-    # mainloop()
 
 
 if __name__ == "__main__":

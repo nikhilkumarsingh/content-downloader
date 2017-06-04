@@ -17,6 +17,9 @@ total_chunks =[]
 main_iter = None
 yellow_color = "\033[93m"
 blue_color = "\033[94m"
+
+exit_flag=0
+
 # modes -> s: series | p: parallel
 
 i_max=[]
@@ -32,6 +35,7 @@ s.mount('http://', HTTPAdapter(max_retries = retries))
 def download(urls, directory,idx,min_file_size = 0, max_file_size = -1, 
              no_redirects = False, pos = 0, mode = 's'):
     global main_it
+    global exit_flag
     global total_chunks
     global file_name
 
@@ -75,13 +79,14 @@ def download(urls, directory,idx,min_file_size = 0, max_file_size = -1,
                 i=i+1
                 i_max[idx]=i
                 f.write(data)
-
+    exit_flag+=1
 
 
 
 def download_parallel(url, directory,idx,min_file_size = 0, max_file_size = -1, 
              no_redirects = False, pos = 0, mode = 's'):
     global main_it
+    global exit_flag
     global total_chunks
     global file_name
 
@@ -123,6 +128,7 @@ def download_parallel(url, directory,idx,min_file_size = 0, max_file_size = -1,
             i=i+1
             i_max[idx]=i
             f.write(data)
+    exit_flag+=1
 
 
 
@@ -161,8 +167,8 @@ class progress_class():
         self.frame=frame
 
 
-        self.button = Button(frame,text="start", command=self.start)
-        self.button.pack(fill=X)
+        # self.button = Button(frame,text="start", command=self.start)
+        # self.button.pack(fill=X)
         self.progress=[]
         self.str=[]
         self.label=[]
@@ -183,10 +189,10 @@ class progress_class():
             self.str.append(StringVar() )
             self.label.append(Label(frame,textvariable=self.str[self.i],width=40) )
             self.label[self.i].pack()
-
+            self.progress[self.i]["value"] = 0
             self.bytes.append(0)
             self.maxbytes.append(0)
-
+        self.start()
 
 
     def start(self):
@@ -206,14 +212,19 @@ class progress_class():
 
     def read_bytes(self):
         ''' reading bytes; update progress bar after 1 ms'''
+        global exit_flag
         for self.i in range(0,self.length) :
             self.bytes[self.i] =i_max[self.i]
             self.maxbytes[self.i]=total_chunks[self.i]
             self.progress[self.i]["maximum"]=total_chunks[self.i]
             self.progress[self.i]["value"]=self.bytes[self.i]
-            self.str[self.i].set(file_name[self.i]+"       "+ str(self.bytes[self.i])+"KB / "+str(int(self.maxbytes[self.i])  )+"KB")
+            self.str[self.i].set(file_name[self.i]+"       "+ str(self.bytes[self.i])+"KB / "+str(int(self.maxbytes[self.i]+1)  )+"KB")
 
-        self.frame.after(1, self.read_bytes)
+        if exit_flag==self.length:
+            exit_flag=0
+            self.frame.destroy()
+        else:
+            self.frame.after(10, self.read_bytes)
 
 
 
@@ -229,8 +240,6 @@ def download_parallel_gui(root,urls, directory, min_file_size, max_file_size, no
     app=progress_class(root,urls,directory, min_file_size,max_file_size,no_redirects)
 
 
-    print("\n\nDownload complete.")
-
 def download_series_gui(frame,urls, directory, min_file_size, max_file_size, no_redirects):
 
     # create directory to save files
@@ -239,4 +248,4 @@ def download_series_gui(frame,urls, directory, min_file_size, max_file_size, no_
 
     app=progress_class(frame,urls,directory, min_file_size,max_file_size,no_redirects)
 
-    print("\n\nDownload complete.")
+ 
