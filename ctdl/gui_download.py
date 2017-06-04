@@ -62,10 +62,10 @@ def download(urls, directory,idx,min_file_size = 0, max_file_size = -1,
 
         if total_chunks[idx] < min_file_size: 
             # ignore this file since file size is lesser than min_file_size
-            return
+            continue
         elif max_file_size != -1 and total_chunks[idx] > max_file_size:
             # ignore this file since file size is greater than max_file_size
-            return
+            continue
 
         file_iterable = resp.iter_content(chunk_size = chunk_size)
 
@@ -111,9 +111,11 @@ def download_parallel(url, directory,idx,min_file_size = 0, max_file_size = -1,
 
     if total_chunks[idx] < min_file_size: 
         # ignore this file since file size is lesser than min_file_size
+        exit_flag+=1
         return
     elif max_file_size != -1 and total_chunks[idx] > max_file_size:
         # ignore this file since file size is greater than max_file_size
+        exit_flag+=1
         return
 
     file_iterable = resp.iter_content(chunk_size = chunk_size)
