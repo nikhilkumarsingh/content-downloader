@@ -37,7 +37,7 @@ setup(name = 'ctdl',
       entry_points={
         'console_scripts': [
             'ctdl = ctdl.ctdl:main',
-            'gui= ctdl.gui:main',
+            'ctdl-gui= ctdl.gui:main',
         ],
       },
       zip_safe = False)
