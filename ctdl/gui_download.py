@@ -1,13 +1,19 @@
 import os
 import threading
 import requests
-from multiprocessing import Queue
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
-from tqdm import tqdm, trange
-from tkinter import ttk
 
-from tkinter import *
+try:
+    from Tkinter import *
+except :
+    from tkinter import *
+
+
+try:
+    import ttk
+except :
+    from tkinter import ttk
 
 parallel=False
 
@@ -145,7 +151,7 @@ class myThread (threading.Thread):
         self.no_redirects=no_redirects
 
     def run(self):
-        print ("Starting")
+        # print ("Starting")
         if parallel:
             # here url is single url
             download_parallel(self.url, self.directory,self.idx ,self.min_file_size, self.max_file_size, self.no_redirects )
@@ -153,7 +159,7 @@ class myThread (threading.Thread):
             # here url is whole list of url
             download(self.url, self.directory,self.idx ,self.min_file_size, self.max_file_size, self.no_redirects )
 
-        print ("Exiting" )
+        # print ("Exiting" )
 
 
 class progress_class():
@@ -220,7 +226,7 @@ class progress_class():
             self.maxbytes[self.i]=total_chunks[self.i]
             self.progress[self.i]["maximum"]=total_chunks[self.i]
             self.progress[self.i]["value"]=self.bytes[self.i]
-            self.str[self.i].set(file_name[self.i]+"       "+ str(self.bytes[self.i])+"KB / "+str(int(self.maxbytes[self.i]+1)  )+"KB")
+            self.str[self.i].set(file_name[self.i]+"       "+ str(self.bytes[self.i])+"KB / "+str(int(self.maxbytes[self.i]+1)  )+" KB")
 
         if exit_flag==self.length:
             exit_flag=0
