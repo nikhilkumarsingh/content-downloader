@@ -39,6 +39,13 @@ set download limit , and if you want to download all files parallely select that
 
 ## Command line usage
 
+For gui:
+
+```
+$ ctdl-gui
+```
+From command line:
+
 ```
 $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-p] [-a] [-t]
        [-minfs MIN_FILE_SIZE] [-maxfs MAX_FILE_SIZE] [-nr]
