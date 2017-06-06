@@ -7,6 +7,13 @@ Python package with **command line utility** to download files on any topic in b
 
 ![](https://media.giphy.com/media/3oKIPlt7APHqWuVl3q/giphy.gif)
 
+# content-downloader GUI
+
+This is tkinter based gui for ctdl, all you have to do is type in search query, choose directory,
+set download limit , and if you want to download all files parallely select that checkbox
+
+![](https://media.giphy.com/media/xUPGcIvGpH3KvEmlnG/giphy.gif)
+
 ## Features
 
 - ctdl fetches file links related to a search query from **Google Search**.
