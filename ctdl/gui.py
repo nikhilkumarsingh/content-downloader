@@ -33,8 +33,12 @@ from tqdm import tqdm,  trange
 # icon and title
 root = Tk()
 root.wm_title("Content Downloader")
-img = PhotoImage( file  =  "icon.png" )
-root.tk.call('wm',  'iconphoto',  root._w,  img)
+try:
+    img = PhotoImage( file  =  "icon.png" )
+    root.tk.call('wm',  'iconphoto',  root._w,  img)
+except:
+    img = Image("photo", file="icon.gif")
+    root.tk.call('wm',  'iconphoto',  root._w,  img)
 row = Frame()
 links = []
 
