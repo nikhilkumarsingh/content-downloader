@@ -9,7 +9,7 @@ def readme():
 		pass
 
 setup(name = 'ctdl',
-      version = '1.4.5',
+      version = '1.5.0',
       classifiers = [
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
@@ -37,7 +37,8 @@ setup(name = 'ctdl',
       entry_points={
         'console_scripts': [
             'ctdl = ctdl.ctdl:main',
-            'ctdl-gui= ctdl.gui:main',
+            'ctdl-gui = ctdl.gui:main',
         ],
       },
+      package_data={'': ['icon.png']}, 
       zip_safe = False)
