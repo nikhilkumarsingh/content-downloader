@@ -10,7 +10,7 @@ from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
 from .downloader import download_series, download_parallel
-from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS, DEFAULTS
 
 search_url = "https://www.google.com/search"
 
@@ -129,17 +129,26 @@ def check_threats(**args):
 
 def validate_args(**args):
 	"""
-	function to check if input query is not None
+	function to check if input query is not None 
+	and set missing arguments to default value
 	"""
 	if not args['query']:
 		print("\nMissing required query argument.")
 		sys.exit()
+
+	for key in DEFAULTS:
+		if key not in args:
+			args[key] = DEFAULTS[key]
+
+	return args
 
 
 def download_content(**args):
 	"""
 	main function to fetch links and download them
 	"""
+	args = validate_args(**args)
+
 	if not args['directory']:
 		args['directory'] = args['query'].replace(' ', '-')
 
@@ -231,7 +240,6 @@ def main():
 			isexit = lambda x:True if x is 'n' else None
 		)
 
-	validate_args(**args_dict)
 	download_content(**args_dict)
 
 
