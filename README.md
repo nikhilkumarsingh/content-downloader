@@ -1,20 +1,17 @@
-[![PyPI](https://img.shields.io/badge/PyPi-v1.4-f39f37.svg)](https://pypi.python.org/pypi/ctdl)
+[![PyPI](https://img.shields.io/badge/PyPi-v1.5-f39f37.svg)](https://pypi.python.org/pypi/ctdl)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/nikhilkumarsingh/content-downloader/blob/master/LICENSE.txt)
 
 # content-downloader
 
-Python package with **command line utility** to download files on any topic in bulk.
+**content-downloader** a.k.a **ctdl** is a python package with **command line utility** and **desktop GUI** to download files on any topic in bulk!
 
 ![](https://media.giphy.com/media/3oKIPlt7APHqWuVl3q/giphy.gif)
-
-# content-downloader GUI
-
-This is tkinter based gui for ctdl, all you have to do is type in search query, choose directory,
-set download limit , and if you want to download all files parallely select that checkbox
 
 ![](https://media.giphy.com/media/xUPGcIvGpH3KvEmlnG/giphy.gif)
 
 ## Features
+
+- ctdl can be used as a command line utility as well as a desktop GUI.
 
 - ctdl fetches file links related to a search query from **Google Search**.
 
@@ -37,14 +34,15 @@ set download limit , and if you want to download all files parallely select that
   $ pip install -U git+https://github.com/nikhilkumarsingh/tqdm
   ```
 
-## Command line usage
+## Desktop GUI usage
 
-For gui:
+To use **ctdl** desktop GUI, open terminal and run this command:
 
 ```
 $ ctdl-gui
 ```
-From command line:
+
+## Command line usage
 
 ```
 $ ctdl [-h] [-f FILE_TYPE] [-l LIMIT] [-d DIRECTORY] [-p] [-a] [-t]
@@ -78,7 +76,6 @@ Optional arguments are:
 - -nr : prevent download redirects.
 
                  Default: False
-
 
 ## Examples
 
@@ -123,7 +120,7 @@ Optional arguments are:
   and where the file size is between 10,000 KB (10 MB) and 100,000KB (100 MB),
   where KB means Kilobytes, which has an equivalent value expressed in Megabytes:
   ```
-  $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"`
+  $ ctdl -f pdf -l 10 -minfs 10000 -maxfs 100000 -nr -p "python algorithm"
   ```
 
 ## Usage in Python files
@@ -131,19 +128,21 @@ Optional arguments are:
 ```python
 from ctdl import ctdl
 
-filetype = 'ppt'
-limit = 5
-directory = '/home/nikhil/Desktop/ml-pdfs'
-query = 'machine learning using python'
-
-ctdl.download_content(query, filetype, directory, limit)
+ctdl.download_content(
+file_type = 'ppt',
+limit = 5,
+directory = '/home/nikhil/Desktop/ml-pdfs',
+query = 'machine learning using python')
 ```
 
 ## TODO
 
 - [X] Prompt user before downloading potentially threatful files
+
+- [X] Create ctdl GUI
+
 - [ ] Implement unit testing
-- [ ] Create ctdl GUI
+
 - [ ] Use DuckDuckgo API as an option
 
 ## Want to contribute?
