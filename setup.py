@@ -34,8 +34,10 @@ setup(name = 'ctdl',
       install_requires = ['requests', 'bs4', 'lxml', 'tqdm'],
       dependency_links = ['git+https://github.com/nikhilkumarsingh/tqdm'],
       include_package_data = True,
-      entry_points="""
-      [console_scripts]
-      ctdl = ctdl.ctdl:main
-      """,
+      entry_points={
+        'console_scripts': [
+            'ctdl = ctdl.ctdl:main',
+            'ctdl-gui= ctdl.gui:main',
+        ],
+      },
       zip_safe = False)
