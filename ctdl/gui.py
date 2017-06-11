@@ -22,9 +22,9 @@ except :
 	from tkFileDialog import *
 	from tkMessageBox import *
 
-from .gui_downloader import *
-from .ctdl import *
-from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+from gui_downloader import *
+from ctdl import *
+from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
 
 cur_dir = os.getcwd()
 
@@ -50,12 +50,12 @@ args = { 'parallel' : False, 'file_type' : 'pdf', 'threats' : False,
 		 'min_file_size' : 0, 'max_file_size' : -1, 'directory' : None, 'limit' : 10}
 
 
-def search_function(root1, q, f, l):
+def search_function(root1, q, s, f, l):
 	"""
 	function to get links
 	"""
 	global links
-	links = search(q, f, l)
+	links = search(q, s, f, l)
 	root1.destroy()
 	root1.quit()
 
@@ -82,7 +82,7 @@ def download_content_gui(**args):
 
 	root1 = Frame(root)
 	t1 = threading.Thread(target = search_function,  args = (root1,
-						  args['query'], args['file_type'], args['limit'],))
+						  args['query'], args['website'], args['file_type'], args['limit'],))
 	t1.start()
 	task(root1)
 	t1.join()
@@ -119,6 +119,7 @@ class makeform:
 		self.row0.pack(side = TOP, fill = X, padx = 5, pady = 5)
 		self.lab0.pack(side = LEFT)
 		self.entry_query.pack(side = RIGHT, expand = YES, fill = X)
+
 
 
 		# label min_file_size
@@ -178,6 +179,15 @@ class makeform:
 		self.row4.pack(side = TOP, fill = X, padx = 5, pady = 5)  
 		self.lab4.pack(side = LEFT)
 		self.entry_limit.pack(side = RIGHT, expand = YES, fill = X)
+
+		# specify website
+		self.row8 = Frame(root)
+		self.lab8 = Label(self.row8, width = 25, text = "Specify Website", anchor = 'w')
+		self.entry_website = Entry(self.row8)
+		self.row8.pack(side = TOP, fill = X, padx = 5, pady = 5)
+		self.lab8.pack(side = LEFT)
+		self.entry_website.pack(side = RIGHT, expand = YES, fill = X)
+
 
 
 		# all entries for dropdown menu
@@ -251,6 +261,7 @@ class makeform:
 		args ['min_file_size'] = int( self.entry_min.get())
 		args ['max_file_size'] = int( self.entry_max.get())
 		args ['limit'] = int( self.entry_limit.get())
+		args ['website']= self.entry_website.get()
 		self.check_threat()
 		download_content_gui( **args )
 

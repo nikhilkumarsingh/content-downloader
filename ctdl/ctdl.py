@@ -31,7 +31,18 @@ def scrape(html):
 	links = []
 	for result in results:
 		link = result.a['href'][7:].split('&')[0]
+		link2 = []
+		link_arr=link.split("/")
+
+		#change blob to raw
+		for i in link_arr:
+			if i == "blob":
+				link2.append("raw")
+			else:
+				link2.append(i)
+		link = "/".join(link2)
 		links.append(link)
+
 	return links
 
 
@@ -42,6 +53,8 @@ def get_links(limit, params, headers):
 	every Google search result page has a start index.
 	every page contains 10 search results.
 	"""
+    
+
 	links = []
 	for start_index in range(0, limit, 10):
 		params['start'] = start_index
@@ -91,11 +104,12 @@ def validate_links(links):
 	return available_urls
 
 
-def search(query, file_type = 'pdf', limit = 10):
+def search(query, site="", file_type = 'pdf', limit = 10):
 	"""
 	main function to search for links and return valid ones
 	"""
-	gquery = "filetype:{0} {1}".format(file_type, query)
+
+	gquery = "site:{0} filetype:{1} {2}".format(site,file_type, query)
 	params = {
 		'q': gquery,
 		'start': 0,
@@ -155,7 +169,7 @@ def download_content(**args):
 	print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
 		.format(args['limit'], args['file_type'], args['query'], args['directory']))
 
-	links = search(args['query'], args['file_type'], args['limit'])
+	links = search(args['query'], args['website'], args['file_type'], args['limit'])
 
 	if args['parallel']:
 		download_parallel(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
@@ -196,6 +210,9 @@ def main():
 
 	parser.add_argument("-a", "--available", action='store_true',
 						help = "Get list of all available filetypes.")
+
+	parser.add_argument("-w", "--website", type = str,  default = None,
+						help = "specify website.")
 
 	parser.add_argument("-t", "--threats", action='store_true',
 						help = "Get list of all common virus carrier filetypes.")
