@@ -22,9 +22,9 @@ except :
 	from tkFileDialog import *
 	from tkMessageBox import *
 
-from gui_downloader import *
-from ctdl import *
-from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+from .gui_downloader import *
+from .ctdl import *
+from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
 
 cur_dir = os.getcwd()
 
