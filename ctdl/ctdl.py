@@ -91,11 +91,11 @@ def validate_links(links):
 	return available_urls
 
 
-def search(query, file_type = 'pdf', limit = 10):
+def search(query, website, file_type = 'pdf', limit = 10):
 	"""
 	main function to search for links and return valid ones
 	"""
-	gquery = "filetype:{0} {1}".format(file_type, query)
+	gquery = "filetype:{0} {1} site:{2}".format(file_type, query, website)
 	params = {
 		'q': gquery,
 		'start': 0,
@@ -155,7 +155,7 @@ def download_content(**args):
 	print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
 		.format(args['limit'], args['file_type'], args['query'], args['directory']))
 
-	links = search(args['query'], args['file_type'], args['limit'])
+	links = search(args['query'], args['website'], args['file_type'], args['limit'])
 
 	if args['parallel']:
 		download_parallel(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
@@ -208,6 +208,9 @@ def main():
 
 	parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = False,
 						help = "Prevent download redirects.")
+
+	parser.add_argument("-w", "--website", default = None, type = str,
+						help = "Specify a particular website to download content from.")
 
 	args = parser.parse_args()
 	args_dict = vars(args)
