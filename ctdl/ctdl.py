@@ -79,9 +79,10 @@ def validate_links(links):
 	# checking valid urls for return code
 	urls = {}
 	for link in valid_links:
-		urls[link] = {'code': get_url_nofollow(link)}
 		if 'github.com' and '/blob/' in link:
 			link = link.replace('/blob/', '/raw/')
+		urls[link] = {'code': get_url_nofollow(link)}
+		
 	
 	# printing valid urls with return code 200
 	available_urls = []
@@ -97,7 +98,11 @@ def search(query, website, file_type = 'pdf', limit = 10):
 	"""
 	main function to search for links and return valid ones
 	"""
-	gquery = "filetype:{0} site:{1} {2}".format(file_type, website, query)
+	if website is None:
+		gquery = "filetype:{0} {1}".format(file_type, query)
+	else:
+		gquery = "filetype:{0} site:{1} {2}".format(file_type, website, query)
+
 	params = {
 		'q': gquery,
 		'start': 0,
@@ -212,7 +217,7 @@ def main():
 	parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = False,
 						help = "Prevent download redirects.")
 
-	parser.add_argument("-w", "--website", default = "google.com", type = str,
+	parser.add_argument("-w", "--website", default = None, type = str,
 						help = "Specify a particular website to download content from.")
 
 	args = parser.parse_args()
