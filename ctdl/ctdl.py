@@ -67,7 +67,7 @@ def get_url_nofollow(url):
 		return 0
 
 
-def validate_links(links, website):
+def validate_links(links):
 	"""
 	function to validate urls based on http(s) prefix and return code
 	"""
@@ -80,7 +80,7 @@ def validate_links(links, website):
 	urls = {}
 	for link in valid_links:
 		urls[link] = {'code': get_url_nofollow(link)}
-		if website == 'github.com' and '/blob/' in link:
+		if 'github.com' and '/blob/' in link:
 			link = link.replace('/blob/', '/raw/')
 	
 	# printing valid urls with return code 200
@@ -107,7 +107,7 @@ def search(query, website, file_type = 'pdf', limit = 10):
 		Gecko/20100101 Firefox/53.0'
 	}
 	links = get_links(limit, params, headers)
-	valid_links = validate_links(links, website)
+	valid_links = validate_links(links)
 	return valid_links
 
 
