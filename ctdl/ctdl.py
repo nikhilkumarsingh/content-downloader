@@ -97,7 +97,7 @@ def search(query, website, file_type = 'pdf', limit = 10):
 	"""
 	main function to search for links and return valid ones
 	"""
-	gquery = "filetype:{0} {1} site:{2}".format(file_type, query, website)
+	gquery = "filetype:{0} site:{1} {2}".format(file_type, website, query)
 	params = {
 		'q': gquery,
 		'start': 0,
