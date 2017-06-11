@@ -152,8 +152,9 @@ def download_content(**args):
 	if not args['directory']:
 		args['directory'] = args['query'].replace(' ', '-')
 
-	print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
-		.format(args['limit'], args['file_type'], args['query'], args['directory']))
+	print("Downloading {0} {1} files on topic {2} from {3} and saving to directory: {4}"
+		.format(args['limit'], args['file_type'], args['query'], args['website'], args['directory']))
+		
 
 	links = search(args['query'], args['website'], args['file_type'], args['limit'])
 
@@ -209,7 +210,7 @@ def main():
 	parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = False,
 						help = "Prevent download redirects.")
 
-	parser.add_argument("-w", "--website", default = None, type = str,
+	parser.add_argument("-w", "--website", default = "google.com", type = str,
 						help = "Specify a particular website to download content from.")
 
 	args = parser.parse_args()
