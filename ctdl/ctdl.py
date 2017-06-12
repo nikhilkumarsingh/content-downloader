@@ -78,6 +78,7 @@ def validate_links(links):
 	
 	if not valid_links:
 		print("No files found.")
+		sys.exit(0)
 
 	# checking valid urls for return code
 	urls = {}
