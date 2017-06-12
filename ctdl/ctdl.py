@@ -75,6 +75,9 @@ def validate_links(links):
 	for link in links:
 		if link[:7] in "http://" or link[:8] in "https://":
 			valid_links.append(link)
+	
+	if not valid_links:
+		print("No files found.")
 
 	# checking valid urls for return code
 	urls = {}
