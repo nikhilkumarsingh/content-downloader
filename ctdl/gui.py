@@ -41,24 +41,21 @@ row = Frame()
 links = []
 
 default_text = {'file_type' : 'pdf', 'query' : 'python', 
-		'website': 'google.com', 'min_file_size' : 0,
-		'max_file_size' : -1, 'limit' : 10}
+	 'min_file_size' : 0, 'max_file_size' : -1, 'limit' : 10}
 
-fields = 'Search query', 'Fetch results only from',  'Min Allowed File Size',  'Max Allowed File Size', 'Download Directory', 'Limit'
+fields = 'Search query',  'Min Allowed File Size',  'Max Allowed File Size', 'Download Directory', 'Limit'
 
 args = { 'parallel' : False, 'file_type' : 'pdf', 'threats' : False, 
 		 'no_redirects' : False, 'available' : False, 'query' : 'python', 
-		 'min_file_size' : 0, 'max_file_size' : -1, 'directory' : None, 'limit' : 10,
-		 'website': 'google.com'
-		 }
+		 'min_file_size' : 0, 'max_file_size' : -1, 'directory' : None, 'limit' : 10}
 
 
-def search_function(root1, q, w, f, l):
+def search_function(root1, q, f, l):
 	"""
 	function to get links
 	"""
 	global links
-	links = search(q, w, f, l)
+	links = search(q, f, l)
 	root1.destroy()
 	root1.quit()
 
@@ -85,7 +82,7 @@ def download_content_gui(**args):
 
 	root1 = Frame(root)
 	t1 = threading.Thread(target = search_function,  args = (root1,
-						  args['query'], args['website'], args['file_type'], args['limit'],))
+						  args['query'], args['file_type'], args['limit'],))
 	t1.start()
 	task(root1)
 	t1.join()
@@ -103,7 +100,7 @@ def download_content_gui(**args):
 
 class makeform:
 	"""
-	to make the main form of gui
+	to makre the main form of gui
 	"""
 	global args
 	def __init__(self, root):
@@ -124,24 +121,9 @@ class makeform:
 		self.entry_query.pack(side = RIGHT, expand = YES, fill = X)
 
 
-		# label website filter
-		self.row1 = Frame(root)
-		self.lab1 = Label(self.row1, width = 25, text = fields [1], anchor = 'w')
-		self.website = Entry(self.row1)
-		self.website.insert(0, 'google.com')
-		self.website.bind('<FocusIn>', self.on_entry_click)
-		self.website.bind('<FocusOut>', lambda event,  
-							  a = "website": self.on_focusout( event, a))
-
-		self.website.config(fg = 'grey')
-		self.row1.pack(side = TOP, fill = X, padx = 5, pady = 5)
-		self.lab1.pack(side = LEFT)
-		self.website.pack(side = RIGHT, expand = YES, fill = X)
-
-
 		# label min_file_size
 		self.row1 = Frame(root)
-		self.lab1 = Label(self.row1, width = 25, text = fields [2], anchor = 'w')
+		self.lab1 = Label(self.row1, width = 25, text = fields [1], anchor = 'w')
 		self.entry_min = Entry(self.row1)
 		self.entry_min.insert(0, '0')
 		self.entry_min.bind('<FocusIn>', self.on_entry_click)
@@ -156,7 +138,7 @@ class makeform:
 
 		# label max_file_size
 		self.row2 = Frame(root)
-		self.lab2 = Label(self.row2, width = 25, text = fields [3], anchor = 'w')
+		self.lab2 = Label(self.row2, width = 25, text = fields [2], anchor = 'w')
 		self.entry_max  =  Entry(self.row2)
 		self.entry_max.insert(0, '-1')
 		self.entry_max.bind('<FocusIn>', self.on_entry_click)
@@ -173,7 +155,7 @@ class makeform:
 		self.dir_text = StringVar()
 		self.dir_text.set('Choose Directory')
 		self.row3 = Frame(root)
-		self.lab3 = Label(self.row3,  width = 25,  text = fields [4],  anchor = 'w')
+		self.lab3 = Label(self.row3,  width = 25,  text = fields [3],  anchor = 'w')
 		self.entry_dir = Button(self.row3, textvariable = self.dir_text, command = self.ask_dir)
 		self.row3.pack(side = TOP,  fill = X, padx = 5, pady = 5)
 		self.lab3.pack(side = LEFT )
@@ -186,7 +168,7 @@ class makeform:
 
 		# label download limit
 		self.row4 = Frame(root)
-		self.lab4 = Label(self.row4, width = 25, text = fields[5], anchor = 'w')
+		self.lab4 = Label(self.row4, width = 25, text = fields[4], anchor = 'w')
 		self.entry_limit = Entry(self.row4)
 		self.entry_limit.insert(0, '10')
 		self.entry_limit.bind('<FocusIn>', self.on_entry_click)
@@ -266,7 +248,6 @@ class makeform:
 		args ['file_type'] = self.optionmenu.get()
 		args ['no_redirects'] = self.t.get()
 		args ['query'] = self.entry_query.get()
-		args ['website'] = self.website.get()
 		args ['min_file_size'] = int( self.entry_min.get())
 		args ['max_file_size'] = int( self.entry_max.get())
 		args ['limit'] = int( self.entry_limit.get())
