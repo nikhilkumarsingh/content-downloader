@@ -23,13 +23,13 @@ retries = Retry(total=5,
 s.mount('http://', HTTPAdapter(max_retries=retries))
 
 
-def duckduckgo_search(limit,params,headers):
+def get_duckduckgo_links(limit,params,headers):
     """ Search duckduckgo for the query and return urls
     Returns: urls (list)
             [url1, url2,..]
     """
     """ 
-    Seperate header for duckduck go no use of headers
+    Seperate header for duckduck go
     """
     urls = []
     header = {
@@ -40,9 +40,10 @@ def duckduckgo_search(limit,params,headers):
     soup = BeautifulSoup(response.text, 'html.parser')
 
     for links in soup.findAll('a', {'class': 'result__a'}):
-
-    	if validate_duckduckgo_link(links.get('href')):  # url is appended only if it's valid
-    		urls.append(links.get('href'))
+    	link=links.get('href')
+    	if (link[:7] in "http://" or link[:8] in "https://") and get_url_nofollow(link)==200: 
+    	# url is appended only if it's valid
+    		urls.append(link)
 
     	if len(urls)>=limit:
     		break
@@ -58,16 +59,7 @@ def google_scrape(html):
 	links = []
 	for result in results:
 		link = result.a['href'][7:].split('&')[0]
-		link2 = []
-		link_arr=link.split("/")
-
-		#change blob to raw
-		for i in link_arr:
-			if i == "blob":
-				link2.append("raw")
-			else:
-				link2.append(i)
-		link = "/".join(link2)
+		link = link.replace('/blob/', '/raw/')
 		links.append(link)
 
 	return links
@@ -80,8 +72,6 @@ def get_google_links(limit, params, headers):
 	every Google search result page has a start index.
 	every page contains 10 search results.
 	"""
-    
-
 	links = []
 	for start_index in range(0, limit, 10):
 		params['start'] = start_index
@@ -105,15 +95,6 @@ def get_url_nofollow(url):
 		return e.code
 	except:
 		return 0
-
-def validate_duckduckgo_link(link):
-	"""
-	 this function checks if url is valid
-	"""
-	if (link[:7] in "http://" or link[:8] in "https://") and get_url_nofollow(link)==200:
-		return True
-	else:
-		return False
 
 
 def validate_links(links):
@@ -164,7 +145,7 @@ def search(query, option='g', site="", file_type = 'pdf', limit = 10):
 		params = {
 			'q': gquery,
 		}
-		links = duckduckgo_search(limit,params,headers)
+		links = get_duckduckgo_links(limit,params,headers)
 	
 	valid_links = validate_links(links)
 	return valid_links
