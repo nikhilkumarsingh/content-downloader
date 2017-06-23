@@ -4,15 +4,16 @@ import requests
 import urllib
 try:
 	from urllib.request import urlopen
+	from urllib.error import HTTPError
 except ImportError:
 	from urllib2 import urlopen
+	from urllib2 import HTTPError
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
 from .downloader import download_series, download_parallel
 from .utils import FILE_EXTENSIONS, THREAT_EXTENSIONS, DEFAULTS
 
-search_url = "https://www.google.com/search"
 
 s = requests.Session()
 # Max retries and back-off strategy so all requests to http:// sleep before retrying
@@ -22,7 +23,34 @@ retries = Retry(total=5,
 s.mount('http://', HTTPAdapter(max_retries=retries))
 
 
-def scrape(html):
+def get_duckduckgo_links(limit,params,headers):
+    """ Search duckduckgo for the query and return urls
+    Returns: urls (list)
+            [url1, url2,..]
+    """
+    """ 
+    Seperate header for duckduck go
+    """
+    urls = []
+    header = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.36'+ 
+        '(KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36'}
+
+    response = requests.get('https://duckduckgo.com/html', headers=header, params=params)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    for links in soup.findAll('a', {'class': 'result__a'}):
+    	link=links.get('href')
+    	if (link[:7] in "http://" or link[:8] in "https://") and get_url_nofollow(link)==200: 
+    	# url is appended only if it's valid
+    		urls.append(link)
+
+    	if len(urls)>=limit:
+    		break
+    return urls
+
+
+def google_scrape(html):
 	"""
 	function to scrape file links from html response
 	"""
@@ -31,11 +59,13 @@ def scrape(html):
 	links = []
 	for result in results:
 		link = result.a['href'][7:].split('&')[0]
+		link = link.replace('/blob/', '/raw/')
 		links.append(link)
+
 	return links
 
 
-def get_links(limit, params, headers):
+def get_google_links(limit, params, headers):
 	"""
 	function to fetch links equal to limit
 
@@ -45,8 +75,8 @@ def get_links(limit, params, headers):
 	links = []
 	for start_index in range(0, limit, 10):
 		params['start'] = start_index
-		resp = s.get(search_url, params = params, headers = headers)
-		page_links = scrape(resp.content)
+		resp = s.get("https://www.google.com/search", params = params, headers = headers)
+		page_links = google_scrape(resp.content)
 		links.extend(page_links)
 	return links[:limit]
 
@@ -61,7 +91,7 @@ def get_url_nofollow(url):
 		response = urlopen(url)
 		code = response.getcode()
 		return code
-	except urllib.error.HTTPError as e:
+	except HTTPError as e:
 		return e.code
 	except:
 		return 0
@@ -91,20 +121,32 @@ def validate_links(links):
 	return available_urls
 
 
-def search(query, file_type = 'pdf', limit = 10):
+def search(query, option='g', site="", file_type = 'pdf', limit = 10):
 	"""
 	main function to search for links and return valid ones
 	"""
-	gquery = "filetype:{0} {1}".format(file_type, query)
-	params = {
-		'q': gquery,
-		'start': 0,
-	}
+	if site=="":
+		gquery = "filetype:{0} {1}".format(file_type, query)
+	else:
+		gquery = "site:{0} filetype:{1} {2}".format(site,file_type, query)
+
 	headers = {
 		'User Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:53.0) \
 		Gecko/20100101 Firefox/53.0'
 	}
-	links = get_links(limit, params, headers)
+	if option=="g":
+		params = {
+			'q': gquery,
+			'start': 0,
+		}
+		links = get_google_links(limit, params, headers)
+
+	elif option=="d":
+		params = {
+			'q': gquery,
+		}
+		links = get_duckduckgo_links(limit,params,headers)
+	
 	valid_links = validate_links(links)
 	return valid_links
 
@@ -155,7 +197,7 @@ def download_content(**args):
 	print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
 		.format(args['limit'], args['file_type'], args['query'], args['directory']))
 
-	links = search(args['query'], args['file_type'], args['limit'])
+	links = search(args['query'], args['option'], args['website'], args['file_type'], args['limit'])
 
 	if args['parallel']:
 		download_parallel(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
@@ -194,8 +236,14 @@ def main():
 	parser.add_argument("-p", "--parallel", action = 'store_true', default = False,
 						help = "For parallel downloading.")
 
+	parser.add_argument("-o", "--option", type=str, default = "g",
+						help = "specify search engine d for duckduckgo , g for google")
+
 	parser.add_argument("-a", "--available", action='store_true',
 						help = "Get list of all available filetypes.")
+
+	parser.add_argument("-w", "--website", type = str,  default = "",
+						help = "specify website.")
 
 	parser.add_argument("-t", "--threats", action='store_true',
 						help = "Get list of all common virus carrier filetypes.")
