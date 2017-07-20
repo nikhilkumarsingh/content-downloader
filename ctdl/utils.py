@@ -1,6 +1,16 @@
-FILE_EXTENSIONS = {  'Adobe Flash':'swf',
-					 'Adobe Portable Document Format':'pdf',
-					 'Adobe PostScript':'ps',
+DEFAULTS = {		'file_type': 'pdf',
+					'limit': 10,
+					'directory': None,
+					'parallel': False,
+					'min_file_size': 0,
+					'max_file_size': -1,
+					'no_redirects': False
+			}
+
+
+FILE_EXTENSIONS = {  'Adobe Flash': 'swf',
+					 'Adobe Portable Document Format': 'pdf',
+					 'Adobe PostScript': 'ps',
 					 'Autodesk Design Web Format': 'dwf',
 					 'Google Earth': 'kml',
 					 'XML': 'xml',

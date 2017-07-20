@@ -19,7 +19,6 @@ retries = Retry(total = 5,
                 status_forcelist = [ 500, 502, 503, 504 ])
 s.mount('http://', HTTPAdapter(max_retries = retries))
 
-
 def download(url, directory, min_file_size = 0, max_file_size = -1, 
 	         no_redirects = False, pos = 0, mode = 's'):
     global main_it

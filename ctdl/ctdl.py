@@ -4,19 +4,16 @@ import requests
 import urllib
 try:
 	from urllib.request import urlopen
+	from urllib.error import HTTPError
 except ImportError:
 	from urllib2 import urlopen
-try:
-	from urllib.error import HTTPError
-except:
 	from urllib2 import HTTPError
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from bs4 import BeautifulSoup
 from downloader import download_series, download_parallel
-from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS
+from utils import FILE_EXTENSIONS, THREAT_EXTENSIONS, DEFAULTS
 
-search_url = "https://www.google.com/search"
 
 s = requests.Session()
 # Max retries and back-off strategy so all requests to http:// sleep before retrying
@@ -25,21 +22,8 @@ retries = Retry(total=5,
 				status_forcelist=[ 500, 502, 503, 504 ])
 s.mount('http://', HTTPAdapter(max_retries=retries))
 
-
-def scrape(html):
-	"""
-	function to scrape file links from html response
-	"""
-	soup = BeautifulSoup(html, 'lxml')
-	results = soup.findAll('h3', {'class': 'r'})
-	links = []
-	for result in results:
-		link = result.a['href'][7:].split('&')[0]
-		links.append(link)
-	return links
-
-
-def get_links(limit, params, headers):
+	
+def get_google_links(limit, params, headers):
 	"""
 	function to fetch links equal to limit
 
@@ -49,10 +33,49 @@ def get_links(limit, params, headers):
 	links = []
 	for start_index in range(0, limit, 10):
 		params['start'] = start_index
-		resp = s.get(search_url, params = params, headers = headers)
-		page_links = scrape(resp.content)
+		resp = s.get("https://www.google.com/search", params = params, headers = headers)
+		page_links = scrape_links(resp.content, engine = 'g')
 		links.extend(page_links)
 	return links[:limit]
+
+
+
+def get_duckduckgo_links(limit, params, headers):
+	"""
+	function to fetch links equal to limit
+
+	duckduckgo pagination is not static, so there is a limit on
+	maximum number of links that can be scraped
+	"""
+	resp = s.get('https://duckduckgo.com/html', params = params, headers = headers)
+	links = scrape_links(resp.content, engine = 'd')
+	return links[:limit]
+
+
+def scrape_links(html, engine):
+	"""
+	function to scrape file links from html response
+	"""
+	soup = BeautifulSoup(html, 'lxml')
+	links = []
+
+	if engine == 'd':
+		results = soup.findAll('a', {'class': 'result__a'})
+		for result in results:
+			link = result.get('href')[15:]
+			link = link.replace('/blob/', '/raw/')
+			links.append(link)
+
+	elif engine == 'g':
+		results = soup.findAll('h3', {'class': 'r'})   	
+		for result in results:
+			link = result.a['href'][7:].split('&')[0]
+			link = link.replace('/blob/', '/raw/')
+			links.append(link)
+
+	return links
+
+
 
 
 def get_url_nofollow(url):
@@ -79,11 +102,18 @@ def validate_links(links):
 	for link in links:
 		if link[:7] in "http://" or link[:8] in "https://":
 			valid_links.append(link)
+	
+	if not valid_links:
+		print("No files found.")
+		sys.exit(0)
 
 	# checking valid urls for return code
 	urls = {}
 	for link in valid_links:
+		if 'github.com' and '/blob/' in link:
+			link = link.replace('/blob/', '/raw/')
 		urls[link] = {'code': get_url_nofollow(link)}
+		
 	
 	# printing valid urls with return code 200
 	available_urls = []
@@ -95,20 +125,35 @@ def validate_links(links):
 	return available_urls
 
 
-def search(query, file_type = 'pdf', limit = 10):
+def search(query, engine='g', site="", file_type = 'pdf', limit = 10):
 	"""
 	main function to search for links and return valid ones
 	"""
-	gquery = "filetype:{0} {1}".format(file_type, query)
-	params = {
-		'q': gquery,
-		'start': 0,
-	}
+	if site == "":
+		search_query = "filetype:{0} {1}".format(file_type, query)
+	else:
+		search_query = "site:{0} filetype:{1} {2}".format(site,file_type, query)
+
 	headers = {
 		'User Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:53.0) \
 		Gecko/20100101 Firefox/53.0'
 	}
-	links = get_links(limit, params, headers)
+	if engine == "g":
+		params = {
+			'q': search_query,
+			'start': 0,
+		}
+		links = get_google_links(limit, params, headers)
+
+	elif engine == "d":
+		params = {
+			'q': search_query,
+		}
+		links = get_duckduckgo_links(limit,params,headers)
+	else:
+		print("Wrong search engine selected!")
+		sys.exit()
+	
 	valid_links = validate_links(links)
 	return valid_links
 
@@ -133,24 +178,34 @@ def check_threats(**args):
 
 def validate_args(**args):
 	"""
-	function to check if input query is not None
+	function to check if input query is not None 
+	and set missing arguments to default value
 	"""
 	if not args['query']:
 		print("\nMissing required query argument.")
 		sys.exit()
+
+	for key in DEFAULTS:
+		if key not in args:
+			args[key] = DEFAULTS[key]
+
+	return args
 
 
 def download_content(**args):
 	"""
 	main function to fetch links and download them
 	"""
+	args = validate_args(**args)
+
 	if not args['directory']:
 		args['directory'] = args['query'].replace(' ', '-')
 
-	print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
-		.format(args['limit'], args['file_type'], args['query'], args['directory']))
+	print("Downloading {0} {1} files on topic {2} from {3} and saving to directory: {4}"
+		.format(args['limit'], args['file_type'], args['query'], args['website'], args['directory']))
+		
 
-	links = search(args['query'], args['file_type'], args['limit'])
+	links = search(args['query'], args['engine'], args['website'], args['file_type'], args['limit'])
 
 	if args['parallel']:
 		download_parallel(links, args['directory'], args['min_file_size'], args['max_file_size'], args['no_redirects'])
@@ -189,8 +244,14 @@ def main():
 	parser.add_argument("-p", "--parallel", action = 'store_true', default = False,
 						help = "For parallel downloading.")
 
+	parser.add_argument("-e", "--engine", type=str, default = "g",
+						help = "Specify search engine\nduckduckgo: 'd'\ngoogle: 'g'")
+
 	parser.add_argument("-a", "--available", action='store_true',
 						help = "Get list of all available filetypes.")
+
+	parser.add_argument("-w", "--website", type = str,  default = "",
+						help = "specify website.")
 
 	parser.add_argument("-t", "--threats", action='store_true',
 						help = "Get list of all common virus carrier filetypes.")
@@ -203,6 +264,9 @@ def main():
 
 	parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = False,
 						help = "Prevent download redirects.")
+
+	parser.add_argument("-w", "--website", default = None, type = str,
+						help = "Specify a particular website to download content from.")
 
 	args = parser.parse_args()
 	args_dict = vars(args)
@@ -235,7 +299,6 @@ def main():
 			isexit = lambda x:True if x is 'n' else None
 		)
 
-	validate_args(**args_dict)
 	download_content(**args_dict)
 
 
