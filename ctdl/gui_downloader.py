@@ -49,7 +49,7 @@ def download(urls, directory, idx, min_file_size = 0, max_file_size = -1,
 		resp = s.get(url, stream = True, allow_redirects = is_redirects)
 		if not resp.status_code == 200:
 			# ignore this file since server returns invalid response
-			return
+			continue
 		try:
 			total_size = int(resp.headers['content-length'])
 		except KeyError:
@@ -90,6 +90,7 @@ def download_parallel(url, directory, idx, min_file_size = 0, max_file_size = -1
 	resp = s.get(url, stream = True, allow_redirects = is_redirects)
 	if not resp.status_code == 200:
 		# ignore this file since server returns invalid response
+		exit_flag += 1
 		return
 	try:
 		total_size = int(resp.headers['content-length'])
