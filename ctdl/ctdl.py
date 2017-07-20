@@ -102,11 +102,18 @@ def validate_links(links):
 	for link in links:
 		if link[:7] in "http://" or link[:8] in "https://":
 			valid_links.append(link)
+	
+	if not valid_links:
+		print("No files found.")
+		sys.exit(0)
 
 	# checking valid urls for return code
 	urls = {}
 	for link in valid_links:
+		if 'github.com' and '/blob/' in link:
+			link = link.replace('/blob/', '/raw/')
 		urls[link] = {'code': get_url_nofollow(link)}
+		
 	
 	# printing valid urls with return code 200
 	available_urls = []
@@ -194,8 +201,9 @@ def download_content(**args):
 	if not args['directory']:
 		args['directory'] = args['query'].replace(' ', '-')
 
-	print("Downloading {0} {1} files on topic {2} and saving to directory: {3}"
-		.format(args['limit'], args['file_type'], args['query'], args['directory']))
+	print("Downloading {0} {1} files on topic {2} from {3} and saving to directory: {4}"
+		.format(args['limit'], args['file_type'], args['query'], args['website'], args['directory']))
+		
 
 	links = search(args['query'], args['engine'], args['website'], args['file_type'], args['limit'])
 
@@ -256,6 +264,9 @@ def main():
 
 	parser.add_argument("-nr", "--no-redirects", action = 'store_true', default = False,
 						help = "Prevent download redirects.")
+
+	parser.add_argument("-w", "--website", default = None, type = str,
+						help = "Specify a particular website to download content from.")
 
 	args = parser.parse_args()
 	args_dict = vars(args)
