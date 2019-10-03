@@ -250,8 +250,8 @@ def main():
 	parser.add_argument("-a", "--available", action='store_true',
 						help = "Get list of all available filetypes.")
 
-	parser.add_argument("-w", "--website", type = str,  default = "",
-						help = "specify website.")
+	# parser.add_argument("-w", "--website", type = str,  default = "",
+	# 					help = "specify website.")
 
 	parser.add_argument("-t", "--threats", action='store_true',
 						help = "Get list of all common virus carrier filetypes.")
